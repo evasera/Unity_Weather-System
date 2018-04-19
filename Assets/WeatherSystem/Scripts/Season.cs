@@ -38,13 +38,19 @@ namespace weatherSystem
 				return startDate.Equals(other.GetStartDate()) && endDate.Equals(other.GetStartDate()) && name.Equals(other.name);
 			}
 		}
-		
+	
+        
+        
         private void Awake(){
             //Validate start date
             Start_date.Trim();
+            if (debug) {
+                Debug.Log("SEASON " + name + ":    Calculating start of season " + name + " ...");
+                Debug.Break();
+            }
             string[] dateSplit = Start_date.Split('/');
             if (dateSplit.Length != 3){
-                Debug.LogError("Initial date must follow the format: dd/mm/yyyy");
+                Debug.LogError("SEASON " + name + ":    Initial date must follow the format: dd/mm/yyyy");
 				Debug.Break();
 			}
             int day = int.Parse(dateSplit[0]);
@@ -67,21 +73,44 @@ namespace weatherSystem
             startDate = new Date(day, month, -1);
 
             //validate end date
+            if (debug) {
+                Debug.Log("SEASON " + name + ":    Calculating end of season " + name + "...");
+                Debug.Break();
+            }
             End_date.Trim();
-            dateSplit = Start_date.Split('/');
-            if (dateSplit.Length != 3){
-                Debug.LogError("End date must follow the format: dd/mm/yyyy");
+            if (debug) {
+                Debug.Log("SEASON " + name + ":  \n end Received: " + End_date + "\t start recived: " + Start_date);
+                Debug.Break();
+            }
+            string[] a = End_date.Split('/');
+            if (a.Length != 3){
+                Debug.LogError("SEASON " + name + ":    End date must follow the format: dd/mm/yyyy");
 				Debug.Break();
 			}
-            day = int.Parse(dateSplit[0]);
-            m = int.Parse(dateSplit[1]);
+            if (debug) {
+                Debug.Log("End date split \n " + a[0] + "\t" + a[1] + "\t" + a[2]);
+            }
+            day = int.Parse(a[0]);
+            m = int.Parse(a[1]);
+            if (debug) {
+                Debug.Log("SEASON " + name + ":    day number: " + day + "\n" +
+                        "month number: " + m);
+                Debug.Log("Loop to find correct object Month: ");
+                Debug.Break();
+            }
             month = null;
+
             //getting the Month object from the number.
             for (int i = 0; i < MonthList.Length; i++)
             {
-                if (MonthList[i].GetComponent<Month>().Month_number == m)
-                {
-                    month = MonthList[i].GetComponent<Month>();
+                Month aux = MonthList[i].GetComponent<Month>();
+                if (debug) {
+                    Debug.Log("SEASON " + name + ":    Month " + aux.name + " month number: " + aux.Month_number + "\n" +
+                            "is correct month? " +( aux.Month_number == m));
+                    Debug.Break();
+                }
+                if (aux.Month_number == m){
+                    month = aux;
                 }
             }
             if (month == null){
@@ -89,15 +118,16 @@ namespace weatherSystem
 				Debug.Break();
 			}
 
-            endDate = new Date(day, month, -1);
-
+            Date k = new Date(day, month, -1);
+            endDate = k;
+            
 			//validate next Season:
 			if(next_season == null){
 				Debug.LogError("Season " + this.name + ": next month can not be null");
 				Debug.Break();
 			}
         }
-
+        
         // Use this for initialization
         void Start()
         {

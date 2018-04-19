@@ -232,7 +232,8 @@ namespace weatherSystem {
 			Time midday = clock.GetMiddayTime();
 			if(sun){
 				if(previousTime.CompareTo(new Time(23,59,59)) <=0 && currentTime.CompareTo(midnight)>= 0){
-					Debug.Log("Calculating moon rotation on z axis (inclination): -------");
+					if(debug)
+                        Debug.Log("Calculating moon rotation on z axis (inclination): -------");
 					int secondsOfLight = sunset.SecondsBetween(sunrise);
 					float angle = secondsOfLight*90/(12*3600);
 					angle = Mathf.Max(0, Mathf.Min(angle, 1));

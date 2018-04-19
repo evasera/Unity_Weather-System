@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace weatherSystem {
-	//TODO: IMPORTANTE: recordar utilizar los metodos clone() cuando se quiere hacer una copia de una de las clases de datos (Tiempo y fecha)
-	
     public class CentralClock : MonoBehaviour {
         #region Public Atributes
 		[Tooltip("For testing purposes. If checked debug messages will be writen on the console")]
@@ -53,15 +51,6 @@ namespace weatherSystem {
         private Date summerSolstice;
         private Date springEquinox;
         private Date autumnEquinox;
-        //TODO: borrar estas lineas si el codigo funciona sin ellas (si el diccionario funciona, vamos)
-		//private Time summerSolstice_Sunrise;
-        //private Time summerSolstice_Sunset;
-        //private Time winterSolstice_Sunrise;
-        //private Time winterSolstice_Sunset;
-        //private Time springEquinox_Sunrise;
-        //private Time springEquinox_Sunset;
-        //private Time autumnEquinox_Sunrise;
-        //private Time autumnEquinox_Sunset;
         private double winterToSpringRate;
         private double springToSummerRate;
         private double summerToAutumnRate;
@@ -100,9 +89,8 @@ namespace weatherSystem {
 				handler(this, e);
 			}
 		}
-		#endregion Event System
-		
-       #region Get and Set Methods
+		#endregion Event System	
+        #region Get and Set Methods
         public int GetNumberOfMonths() { return monthList.Length; }
         public Month[] getMonthList() {return monthList;}
         public Time getCurrentTime() { return currentTime; }
@@ -117,36 +105,18 @@ namespace weatherSystem {
 		public double GetWinterToSpringRate(){return winterToSpringRate;}
         /*Returns Sunrise time of a given date*/
         public Time getSunriseTime(Date d){	
-			if(debug)
-				Debug.Log("---GETING SUNRISE FOR DATE: " + d.ToString()+"---------------");
+			
             Time result = null;
             sunriseTimes.TryGetValue(d, out result);
-			if(debug && result != null){
-				Debug.Log("Date already on the collection, no need to calculate. \n Result: " + result.ToString());
-                Debug.Break();
-			}
 			if(result == null){
-				int daysPast = 0;
-				
+                if (debug)
+                    Debug.Log("---GETING SUNRISE FOR DATE: " + d.ToString() + "---------------");
+                int daysPast = 0;
 				int changeToAply;
 				int compareSummer = d.CompareTo(summerSolstice);
 				int compareWinter = d.CompareTo(winterSolstice);
 				int compareSpring = d.CompareTo(springEquinox);
-				int compareAutumn = d.CompareTo(autumnEquinox);
-				if (debug){
-					Debug.Log("Is date equal to Summer Solstice " + summerSolstice.ToString() + " ?: " + (compareSummer == 0) + "\n" +
-							"Is date equal to Spring equinox " + springEquinox.ToString() + " ?: " + (compareSpring == 0));
-					Debug.Log("Is date equal to Winter Solstice " + winterSolstice.ToString() + " ?: " + (compareWinter == 0) + "\n" + 
-							"Is date equal to Autumn equinox " + autumnEquinox.ToString() + " ?: " + (compareAutumn == 0));
-					Debug.Break();
-				}			
-				if (debug && result == null) {
-					Debug.Log(d.ToString() + " Compared to winter solstice: " + compareWinter + "\n" +
-							d.ToString() + " Compared to Spring eqinox: " + compareSpring);
-					Debug.Log(d.ToString() + " Compared to summer solstice: " + compareSummer + "\n" +
-							d.ToString() + "Compared to Autumn equinox" + compareAutumn);
-					Debug.Break();
-				}
+				int compareAutumn = d.CompareTo(autumnEquinox);		
 				if (compareWinter > 0 && compareSpring < 0){
 					if(debug){
 						Debug.Log("Date is between winterSolstice and spring Equinox");
@@ -309,16 +279,12 @@ namespace weatherSystem {
         }
         /*Returns Sunset time of a given date*/
         public Time getSunsetTime(Date d){
-            if (debug)
-                Debug.Log("---CALCULATING SUNSET FOR DATE: " + d.ToString() + "---------------");
             Time result = null;
             sunsetTimes.TryGetValue(d, out result);            
-			if(debug && result != null){
-				Debug.Log("Date already on the collection, no need to calculate. \n Result: " + result.ToString());
-				Debug.Break();
-			}
 			if(result == null){
-				int daysPast = 0;
+                if (debug)
+                    Debug.Log("---CALCULATING SUNSET FOR DATE: " + d.ToString() + "---------------");
+                int daysPast = 0;
 				int changeToAply;
 				int compareSummer = d.CompareTo(summerSolstice);
 				int compareWinter = d.CompareTo(winterSolstice);
@@ -543,8 +509,10 @@ namespace weatherSystem {
             int hours = int.Parse(split[0]);
             int minutes = int.Parse(split[1]);
             int seconds = int.Parse(split[2]);
-            currentTime = new Time(hours, minutes, seconds);       
-            
+            currentTime = new Time(hours, minutes, seconds);
+            if (currentTime.CompareTo(getSunriseTime()) >= 0 && currentTime.CompareTo(getSunsetTime()) < 0) {
+                dayTime = true;
+            }
 
             //Summer Solstice
             summer_solstice_date.Trim();
@@ -665,95 +633,73 @@ namespace weatherSystem {
             LengthDifference = winter_solstice_hours_of_light - autumn_equinox_hours_of_light;
             autumnToWinterRate = ((LengthDifference / 2.0) / daysbetween) * 3600;
 
-            
         }
-
+        
         // Use this for initialization
         void Start(){
-            //TODO: Check Season Loop
-			GameObject[] seasons = GameObject.FindGameObjectsWithTag("Season");
-            if (seasons == null) {
-				Debug.LogError("No Seasons could be found, please remember to tag the apriopuate Objects with the tag 'Season'");
-				Debug.Break();
-			}
-            Season[] seasonList = new Season[seasons.Length];
-            Date start, end;
-            for (int i = 0; i<seasonList.Length; i++){
-                Season s = seasons[i].GetComponent<Season>() as Season;
-                seasonList[i] = s;
-				start = s.GetStartDate();
-				end = s.GetEndDate();
-				if(currentDate.CompareTo(start)>=0 && currentDate.CompareTo(end)<0){
-					currentSeason = seasonList[i];
-					break;
-				}
-			}
-			if(debug){
-				Debug.Log("initial season found to be: " + currentSeason.name);
-				Debug.Break();
-			}
-			//once the initial date has been found: 
-			if(debug){
-                Debug.Log("Chequing season loop...");
-			}
-			bool loopComplete;
-			int seasonsInYear = 1;
-			Season season=currentSeason.next_season;
-			while(seasonsInYear <= seasonList.Length){
-				Season next = season.next_season;
-				if(debug){
-					Debug.Log("Checking season " + season.name + "\t" + "next season: " + next.name + "\n" +
-							"CurrentSeason: " + currentSeason.name);
-					Debug.Break();
-				}
-				if(season.GetEndDate().CompareTo(next.GetStartDate())!=0){
-					Debug.LogError("Season " + season.name + "end date("+ season.GetStartDate()+") must match Season " + next.name + " start date (" + next.GetStartDate() + ")");
-					Debug.Break();
-				}
-			}
-			if(!season.Equals(currentSeason)){
-				Debug.LogError("the seasons do not form a loop");
-			}			
-			
-			
-			//TODO: ¿Esto se puede mover a awake?
-            if (currentTime.CompareTo(getSunriseTime()) >= 0 && currentTime.CompareTo(getSunsetTime()) < 0){
-                dayTime = true;
-            }
-            if (debug){
-				Debug.Log("Current date: " + currentDate + "\n" + 
-						"Current time: " + currentTime);
-				Debug.Log("today's sunrise: ");
-				Time currentSunrise = getSunriseTime();
-				Debug.Log("next sunrise: ");
-				Time nextSunrise = getNextSunriseTime();
-				Debug.Log("today's sunset: ");
-				Time currentSunset = getSunsetTime(); 
-                Debug.Log("next sunset: ");
-				Time nextSunset = getNextSunsetTime();
-				Time aux = currentTime.Clone();
-							
-				Debug.Log("changing current time to 1 hour before current day's sunrise");
-				currentTime = currentSunrise.Clone();
-				currentTime.add(-3600);
-				Debug.Log("new currentTime: " + currentTime.ToString()); 
-				Debug.Log("Next Sunrise: ");
-				nextSunrise =  getNextSunriseTime();
-				Debug.Log("is next sunrise equal to todays sunrise? (it should) " + (nextSunrise == currentSunrise));
-				
-				Debug.Log("moving currentTime to 1 hour past sunset:" );
-				currentTime = currentSunset.Clone();
-				currentTime.add(3600);
-				Debug.Log("new CurrentTime: " + currentTime.ToString());
-				Debug.Log("next sunset: ");
-				nextSunset = getNextSunsetTime();
-				Debug.Log("is it equal to today's sunset? (it shoudn't) " + (nextSunset != currentSunset));
-				
-				currentTime = aux; 
-            }
-            
-        }
+            if (debug) {
+                Debug.Log("LOOKIN FOR INITIAL SEASON: ");
+                Debug.Log("current date: " + currentDate.ToString());
+                Debug.Log("Sason loop: ");
 
+            }
+            GameObject[] s = GameObject.FindGameObjectsWithTag("Season");
+            for (int i =0; i<s.Length; i++) {
+                Season aux = s[i].GetComponent<Season>();
+                if(aux == null) {
+                    Debug.LogError("GameObject " + s[i].name + "has 'Season' tag but no Season script");
+                }
+                if (debug) {
+                    Debug.Break();
+                    Debug.Log("Season " + aux.name + "\n" +
+                            "start date: " + aux.GetStartDate().ToString() + "\t" + "end date: " + aux.GetEndDate().ToString());
+                }
+                if (aux.GetEndDate().CompareTo(aux.GetStartDate()) < 0) {
+                    if (debug) {
+                        Debug.Log("Season " + aux.name + " detected to go over new year");
+                    }
+                    if(currentDate.CompareTo(aux.GetStartDate())>=0 || currentDate.CompareTo(aux.GetEndDate()) < 0) {
+                        currentSeason = aux;
+                        if (debug) {
+                            Debug.Log("Current date in Season " + aux + " range");
+                        }
+                        break;
+                    }
+                }
+                else if(currentDate.CompareTo(aux.GetStartDate())>=0 && currentDate.CompareTo(aux.GetEndDate())<0) {
+                    currentSeason = aux;
+                    if (debug) {
+                        Debug.Log("Current date in Season " + aux + " range");
+                    }
+                    break;
+                }
+            }
+
+            if (debug) {
+                Debug.Log("CHECKING SEASON LOOP: ----------");
+                Debug.Log("initial season: " + currentSeason.name);
+            }
+            Season next = currentSeason.next_season;
+            int counter = 1;
+            if (debug) {
+                Debug.Log("next season: " + next.name + "\n" + "Counter: " + counter);
+            }
+            while (counter <s.Length) {
+                next = next.next_season;
+                counter++;
+                if (debug) {
+                    Debug.Log("next season: " + next.name + "\n" + "Counter: " + counter);
+                }
+            }
+            if(next != currentSeason) {
+                Debug.LogError("Season Loop is not closed");
+            } else {
+                if (debug)
+                    Debug.Log("season loop complete");
+            }
+              
+        }
+        
         // Update is called once per frame
         void Update(){
 			Time previousTime = currentTime.Clone();
@@ -832,6 +778,30 @@ namespace weatherSystem {
 		public Date Clone(){
 			return new Date(day, month, year);
 		}
+        public Date ParseDate(String s) {
+            s.Trim();
+            string[] dateSplit = s.Split('/');
+            if (dateSplit.Length != 3) {
+                Debug.LogError(" date must follow the format: dd/mm/yyyy");
+                Debug.Break();
+            }
+            int d = int.Parse(dateSplit[0]);
+            int m = int.Parse(dateSplit[1]);
+            Month month = null;
+            //getting the Month object from the number.
+            GameObject[] MonthList = GameObject.FindGameObjectsWithTag("Month");
+            for (int i = 0; i < MonthList.Length; i++) {
+                if (MonthList[i].GetComponent<Month>().Month_number == m) {
+                    month = MonthList[i].GetComponent<Month>();
+                }
+            }
+            if (month == null) {
+                Debug.LogError(" date's month could not be found");
+                Debug.Break();
+            }
+
+            return new Date(d, month, -1);
+        }
 		#endregion Constructors
 		#region getters and setters
         public int GetDay() { return day; }

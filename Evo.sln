@@ -1,12 +1,30 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2017
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evo.Plugins", "Evo.Plugins.csproj", "{DB470477-254D-948A-16F5-468183D1B098}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evo", "Evo.csproj", "{EE673812-DD6E-D30F-C697-22F1E69A5ACE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evo.Editor.Plugins", "Evo.Editor.Plugins.csproj", "{3228AF82-2E4E-52F9-9A21-AA5340873291}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DB470477-254D-948A-16F5-468183D1B098}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB470477-254D-948A-16F5-468183D1B098}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB470477-254D-948A-16F5-468183D1B098}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB470477-254D-948A-16F5-468183D1B098}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE673812-DD6E-D30F-C697-22F1E69A5ACE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE673812-DD6E-D30F-C697-22F1E69A5ACE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE673812-DD6E-D30F-C697-22F1E69A5ACE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE673812-DD6E-D30F-C697-22F1E69A5ACE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3228AF82-2E4E-52F9-9A21-AA5340873291}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3228AF82-2E4E-52F9-9A21-AA5340873291}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3228AF82-2E4E-52F9-9A21-AA5340873291}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3228AF82-2E4E-52F9-9A21-AA5340873291}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

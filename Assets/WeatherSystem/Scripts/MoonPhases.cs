@@ -26,7 +26,7 @@ namespace weatherSystem {
 		#region Event System
 		//registering on events is done on awake()
 		static void MiddayReached(object sender, System.EventArgs e){
-			middayReached = true;
+			//middayReached = true;
             Debug.Log("Moonphases detecta mediodia");
             Debug.Break();
 		}

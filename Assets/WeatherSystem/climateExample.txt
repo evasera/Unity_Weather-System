@@ -1,0 +1,36 @@
+/* INSTRUCTIONS: */
+//each column in a matrix represents a weather condition. The number of columns will always be the same, and all values must be specified, even conditions that cannot happen in this specific weather (just add a value of 0)
+//the number of rows depends on the number of seasons you have defined. It does not have to be consistant beween climate configuration files, but it must be consistant with the definition given at the begining of this document. It is essential thar the name specified on this definition be the same as the name of the GameObject with the Script Season.
+
+
+/*VARIABLE DEFINITION*/
+// all season variables need to be defined as follows: 
+//		SEASON n: "Name"
+//Where n is a number in the range [0, number_of_seasons -1]
+//
+//Here is an ejample:
+
+SEASON 0: "Winter"
+SEASON 1: "Spring"
+SEASON 2: "Summer"
+SEASON 3: "Autumn"
+
+
+/*PROBABILITY MATRIX*/
+//all values will be specified by percentage (values fron 0 to 100, a 100 meaning a certain condition will happen all the time)
+//both temperature and cloud coverage will have a 100 probability, there is no ocasion where there will not be temperature, and the probability of a complete cloudleess sky is small enough that it can be considered null. 
+//a probability of clouds of a 100% only means that most of the time there will be some level of cluds on the sky, hoyever this can be a value of 1 or 2.
+
+//SEASON|CLOUD COVERAGE|TEMPERATURE|PRECIPITATION|STORM  (OTRAS VARIABLES CUANDO SE ME OCURRAN)
+SEASON 0|100|100|50|15|
+SEASON 1|100|100|70|25|
+SEASON 2|100|100|40|10|
+SEASON 3|100|100|60|20|
+
+/*INTENSITY MATRIX*/
+
+//SEASON|CLOUD COVERAGE|TEMPERATURE|PRECIPITATION|STORM  (OTRAS VARIABLES CUANDO SE ME OCURRAN)
+SEASON 0|6|
+SEASON 1|
+SEASON 2|
+SEASON 3|

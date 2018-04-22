@@ -295,6 +295,7 @@
     <Compile Include="Assets\WeatherSystem\Scripts\MoonPhases.cs" />
     <Compile Include="Assets\WeatherSystem\Scripts\Season.cs" />
     <Compile Include="Assets\WeatherSystem\Scripts\SunMoonRotation.cs" />
+    <Compile Include="Assets\WeatherSystem\Scripts\WeatherController.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Creditos.txt" />

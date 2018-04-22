@@ -22,24 +22,10 @@ namespace weatherSystem {
         private Time nextSunrise;
         private Time nextSunset;
         private bool daytime;
-		private static bool sunsetReached= false;
-		private static bool sunriseReached = false;
         private float rotationSpeed;
 		private float sunRotationAxis;
 		//private Vector3 sunRotationAxis;
 		#endregion Private Atributes
-		#region Event System
-		//registering on events is done on awake()
-		static void SunsetReached(object sender, System.EventArgs e){
-			sunsetReached = true;
-            Debug.Log("Sun/moon rotation detected sunset event" );
-		}
-		static void SunriseReached(object sender, System.EventArgs e){
-			sunriseReached= true;
-            Debug.Log("Sun/moon rotation detected sunrise event");
-        }
-		#endregion Event System
-
 	   public void Awake(){
 			//Clock not null check
             if (clock == null){
@@ -49,10 +35,6 @@ namespace weatherSystem {
 			//not sun warning
             if (!sun)
                 Debug.LogWarning(this.name + " has sun value set so false, it will be asumed a moon");
-			
-			//Registering on relevant events:
-			clock.sunsetReached += SunsetReached;
-			clock.sunriseReached += SunriseReached;
         }
 
         // Use this for initialization
@@ -111,11 +93,6 @@ namespace weatherSystem {
 					Debug.Log("soconds passed from start to end: " + timePased + "\n" 
 					+ " the speed used is: " + rotationSpeed + "degrees per second");
 					Debug.Log("new rotation angle generated: " + rotationAngle);
-					Debug.Break();
-				}
-				
-				if(rotationAngle<89||rotationAngle>91 && debug){
-					Debug.LogError("The angle increase might not be correct, expected: 90   calculated: " + rotationAngle);
 					Debug.Break();
 				}
 				transform.RotateAround(Vector3.zero,Vector3.right, rotationAngle );
@@ -186,7 +163,7 @@ namespace weatherSystem {
 			}
 			
 			previousTime = currentTime.Clone();
-			
+		/*	
 			if(sun){
 				if(debug){
 					Debug.Log("Calculating sun rotation on z axis (inclination): -------");
@@ -215,10 +192,8 @@ namespace weatherSystem {
 				}
 				transform.RotateAround(Vector3.zero, Vector3.forward, angle);
 			}
-			
-			if(debug){
-				Debug.Break();
-			}
+            */
+
         }
 
         void Update(){
@@ -226,49 +201,12 @@ namespace weatherSystem {
 			Time sunset = clock.getSunsetTime();
 			Time sunrise = clock.getSunriseTime();
 			
-
-            //Sun Rotation Axis Change
-            Time midnight = clock.GetMidnightTime();
-			Time midday = clock.GetMiddayTime();
-			if(sun){
-				if(previousTime.CompareTo(new Time(23,59,59)) <=0 && currentTime.CompareTo(midnight)>= 0){
-					if(debug)
-                        Debug.Log("Calculating moon rotation on z axis (inclination): -------");
-					int secondsOfLight = sunset.SecondsBetween(sunrise);
-					float angle = secondsOfLight*90/(12*3600);
-					angle = Mathf.Max(0, Mathf.Min(angle, 1));
-                    float oldAngle = transform.rotation.z;
-					if(debug){
-						Debug.Log("Seconds of light: " + secondsOfLight + "\n" +
-								"Axis angle: " + angle);
-						Debug.Break();
-					}
-					transform.RotateAround(Vector3.zero, Vector3.forward, angle);	
-				}
-			}else{
-				if(previousTime.CompareTo(midday)<0 && currentTime.CompareTo(midday)>=0){
-					if(debug){
-						Debug.Log("Calculating moon rotation on z axis (inclination): -------");
-					}
-					int secondsOfDarkness = 24*3600 - sunrise.SecondsBetween(sunset); 
-					float angle = secondsOfDarkness*90/(12*3600);
-					angle = Mathf.Max(0, Mathf.Min(angle, 1));
-                    if (debug){
-						Debug.Log("Seconds of darkness: " + secondsOfDarkness + "\n" +
-							"Axis angle: " + angle);
-						Debug.Break();
-					}
-					transform.RotateAround(Vector3.zero, Vector3.forward, angle);
-				}
-			}
-			
-			//check if sunrise or sunset have been reached		
-			if(sunsetReached){
+			//check if sunset has been reached		
+			if(daytime && currentTime.CompareTo(sunset)>=0){
 				if(debug){
 					Debug.Log("REACHED SUNSET -------------------------");
 				}
 				daytime = false;
-				sunsetReached = false;
 				int timePased = previousTime.SecondsBetween(sunset);
 				float rotationAngle = rotationSpeed*timePased;
                 if (debug) {
@@ -305,13 +243,13 @@ namespace weatherSystem {
 					transform.RotateAround(Vector3.zero, Vector3.right, rotationAngle);
 				}
             }
-			if(sunriseReached){
+            //check if sunrise has been reached
+            if (!daytime && currentTime.CompareTo(sunrise)>=0 && currentTime.CompareTo(sunset)<0){
 				if(debug){
 					Debug.Log("REACHED SUNRISE --------------------------");
 					Debug.Break();
 				}
 				daytime = true;
-				sunriseReached = false;
 				int timePased = previousTime.SecondsBetween(sunrise);
 				float rotationAngle = rotationSpeed*timePased;
                 if (debug) {

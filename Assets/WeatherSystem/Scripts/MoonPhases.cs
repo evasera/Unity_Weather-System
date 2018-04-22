@@ -19,18 +19,13 @@ namespace weatherSystem {
         private int phaseIndex;
         private int[] phaseLengths;
         private int daysSincePhaseChange;
-        private Renderer renderer;
+        private MeshRenderer renderer;
         private CentralClock clock;
 		private static bool middayReached;
-		#endregion Private Atributes
-		#region Event System
-		//registering on events is done on awake()
-		static void MiddayReached(object sender, System.EventArgs e){
-			//middayReached = true;
-            Debug.Log("Moonphases detecta mediodia");
-            Debug.Break();
-		}
-		#endregion Event System
+        private Time previousTime = new Time(0,0,0);
+        private Time currentTime = new Time(0, 0, 0);
+        #endregion Private Atributes
+
         private void calculatePhaseLengths() {
             if (debug) {
                 Debug.Log("CALCULATING MOON PHASES' LENGTH-----------");
@@ -100,9 +95,15 @@ namespace weatherSystem {
                 }
             }
         }
-        private void changeMaterial() {
+        private void changePhase() {
+            phaseIndex = (phaseIndex + 1)%phaseLengths.Length;
+            daysSincePhaseChange = 1;
             //TODO: cambiar material
             renderer.material = moonPhases[phaseIndex];
+            if (debug) {
+                Debug.Log("phase changed. new phase: " + phaseIndex);
+                Debug.Break();
+            }
         }
 
         void Awake() {
@@ -111,7 +112,7 @@ namespace weatherSystem {
                 Debug.LogError("No clock could be found, please remember to tag the object with the CentralClock script with the tag 'Clock' ");
                 Debug.Break();
             }
-            renderer = GetComponent<Renderer>();
+            renderer = GetComponent<MeshRenderer>();
             if (renderer == null) {
                 Debug.LogError("GameObject " + this.name + "Needs a Renderer to make moonPhases visible"); 
                 Debug.Break();
@@ -138,33 +139,34 @@ namespace weatherSystem {
 
             calculatePhaseLengths();
             phaseIndex = 0;
-            daysSincePhaseChange = 0;
+            daysSincePhaseChange = 1;
+            renderer.material = moonPhases[0];
+            
         }
         // Use this for initialization
         void Start() {
-
+            currentTime = clock.getCurrentTime();
+            if (currentTime == null) {
+                Debug.LogError("MoonPhases currentTime is null");
+            }
         }
 
         // Update is called once per frame
         void Update() {
-			if(middayReached){
-				middayReached = false;
-				daysSincePhaseChange ++; 
-				int phaseLength = phaseLengths[phaseIndex];
-				if(debug){
-					Debug.Log("Midday reached, updating moon phase data: " +  "\n" +
-							"days in this phase: " + daysSincePhaseChange + "\t" + "phase length: " + phaseLength);
-				}
-				if(daysSincePhaseChange>phaseLength){
-					Debug.LogError("Current moon phase has lasted longer than it should have, please revise MoonPhases' update function");
-					Debug.Break();
-				}
-				if(daysSincePhaseChange == phaseLength){
-					phaseIndex ++;
-					daysSincePhaseChange = 0;
-					changeMaterial();
-				}
-			}
+           
+            Time midday = clock.GetMiddayTime();
+            currentTime = clock.getCurrentTime();
+            if(previousTime.CompareTo(midday)<0 && currentTime.CompareTo(midday) >= 0) {
+                if (debug) {
+                    Debug.Log("midday reached");
+                    Debug.Break();
+                }
+                daysSincePhaseChange++;
+                if (daysSincePhaseChange > phaseLengths[phaseIndex]) {
+                    changePhase();
+                }
+            }
+            previousTime = currentTime.Clone();
         }
     }
 }

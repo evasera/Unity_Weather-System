@@ -44,7 +44,7 @@ namespace weatherSystem {
         private double seconds = 0.0;
         private Time currentTime;
         private Time midday= new Time(12,0,0);
-        private Time midnight= new Time(0,0,0); //not quite midnight, but simplifies comparisons
+        private Time midnight= new Time(0,0,0);
         bool dayTime = false;
 
         private Date winterSolstice;
@@ -58,38 +58,7 @@ namespace weatherSystem {
 		private Dictionary<Date, Time>  sunriseTimes;
 		private Dictionary<Date, Time>  sunsetTimes;
 		#endregion Private Atributes
-		#region Event System
-		public event EventHandler sunsetReached;
-		public event EventHandler sunriseReached;
-		public event EventHandler middayReached;
-		public event EventHandler midnightReached;
-		
-		//events: rising them is done on update
-		protected virtual void OnSunsetReached(EventArgs e){
-			EventHandler handler = sunsetReached;
-			if(handler != null){
-				handler(this, e);
-			}
-		}
-		protected virtual void OnSunriseReached(EventArgs e){
-            EventHandler handler = sunriseReached;
-            if (handler != null){
-				handler(this, e);
-			}
-		}
-		protected virtual void OnMiddayReached(EventArgs e){
-            EventHandler handler = middayReached;
-            if (handler != null){
-				handler(this, e);
-			}
-		}
-		protected virtual void OnMidnightReached(EventArgs e){
-            EventHandler handler = midnightReached;
-            if (handler != null){
-				handler(this, e);
-			}
-		}
-		#endregion Event System	
+
         #region Get and Set Methods
         public int GetNumberOfMonths() { return monthList.Length; }
         public Month[] getMonthList() {return monthList;}
@@ -109,8 +78,8 @@ namespace weatherSystem {
             Time result = null;
             sunriseTimes.TryGetValue(d, out result);
 			if(result == null){
-                if (debug)
-                    Debug.Log("---GETING SUNRISE FOR DATE: " + d.ToString() + "---------------");
+                //if (debug)
+                //    Debug.Log("---GETING SUNRISE FOR DATE: " + d.ToString() + "---------------");
                 int daysPast = 0;
 				int changeToAply;
 				int compareSummer = d.CompareTo(summerSolstice);
@@ -118,16 +87,16 @@ namespace weatherSystem {
 				int compareSpring = d.CompareTo(springEquinox);
 				int compareAutumn = d.CompareTo(autumnEquinox);		
 				if (compareWinter > 0 && compareSpring < 0){
-					if(debug){
-						Debug.Log("Date is between winterSolstice and spring Equinox");
-						Debug.Break();
-					}
+					//if(debug){
+					//	Debug.Log("Date is between winterSolstice and spring Equinox");
+					//	Debug.Break();
+					//}
 					daysPast = d.DaysBetween(winterSolstice);
-					if(debug){
-						Debug.Log("Days past since Winter solstice: " + daysPast+"\n" +
-								"Change rate (seconds per day): " + winterToSpringRate);
-						Debug.Break();
-					}
+					//if(debug){
+					//	Debug.Log("Days past since Winter solstice: " + daysPast+"\n" +
+					//			"Change rate (seconds per day): " + winterToSpringRate);
+					//	Debug.Break();
+					//}
 					changeToAply = -(int) winterToSpringRate * daysPast;
                     Time winterSolstice_Sunrise;
                     sunriseTimes.TryGetValue(winterSolstice, out winterSolstice_Sunrise);
@@ -136,22 +105,22 @@ namespace weatherSystem {
                         Debug.Break();
                     }
                     result = winterSolstice_Sunrise.TimeWithSeconds(winterSolstice_Sunrise, changeToAply); 
-					if(debug){
-						Debug.Log("Result: " + result.ToString());
-						Debug.Break();
-					}
+					//if(debug){
+					//	Debug.Log("Result: " + result.ToString());
+					//	Debug.Break();
+					//}
 				}
 				if(compareSpring>0 && compareSummer < 0){
-					if(debug){
-						Debug.Log("Date is between spring Equinox and Summer solstice");
-						Debug.Break();
-					}
+					//if(debug){
+					//	Debug.Log("Date is between spring Equinox and Summer solstice");
+					//	Debug.Break();
+					//}
 					daysPast = d.DaysBetween(springEquinox);
-					if(debug){
-						Debug.Log("Days past since Spring Equinox: " + daysPast+"\n" +
-								"Change rate (seconds per day): " + springToSummerRate);
-						Debug.Break();
-					}
+					//if(debug){
+					//	Debug.Log("Days past since Spring Equinox: " + daysPast+"\n" +
+					//			"Change rate (seconds per day): " + springToSummerRate);
+					//	Debug.Break();
+					//}
 					changeToAply = -(int)springToSummerRate * daysPast;
                     Time springEquinox_Sunrise;
                     sunriseTimes.TryGetValue(summerSolstice, out springEquinox_Sunrise);
@@ -160,22 +129,22 @@ namespace weatherSystem {
                         Debug.Break();
                     }
                     result = springEquinox_Sunrise.TimeWithSeconds(springEquinox_Sunrise, changeToAply);
-					if(debug){
-						Debug.Log("Result: " + result.ToString());
-						Debug.Break();
-					}
+					//if(debug){
+					//	Debug.Log("Result: " + result.ToString());
+					//	Debug.Break();
+					//}
 				}
 				if (compareSummer > 0 && compareAutumn < 0){
-					if (debug){
-						Debug.Log("Date is between summer solstice and Autumn Equinox");
-						Debug.Break();
-					}
+					//if (debug){
+					//	Debug.Log("Date is between summer solstice and Autumn Equinox");
+					//	Debug.Break();
+					//}
 					daysPast = d.DaysBetween(summerSolstice);
-					if (debug){
-						Debug.Log("Days past since summer solstice: " + daysPast+"\n" +
-								"Change rate (seconds per day): " + summerToAutumnRate);
-						Debug.Break();
-					}
+					//if (debug){
+					//	Debug.Log("Days past since summer solstice: " + daysPast+"\n" +
+					//			"Change rate (seconds per day): " + summerToAutumnRate);
+					//	Debug.Break();
+					//}
 					changeToAply = -(int)summerToAutumnRate * daysPast;
                     Time summerSolstice_Sunrise;
                     sunriseTimes.TryGetValue(summerSolstice, out summerSolstice_Sunrise);
@@ -184,20 +153,20 @@ namespace weatherSystem {
                         Debug.Break();
                     }
                     result = summerSolstice_Sunrise.TimeWithSeconds(summerSolstice_Sunrise, changeToAply);
-					if(debug){
-						Debug.Log("Result: " + result.ToString());
-						Debug.Break();
-					}
+					//if(debug){
+					//	Debug.Log("Result: " + result.ToString());
+					//	Debug.Break();
+					//}
 				}
 				if (compareAutumn > 0){
-					if (debug){
-						Debug.Log("Date is between Autumn Equinox and the end of the year");
-						Debug.Break();
-					}
+					//if (debug){
+					//	Debug.Log("Date is between Autumn Equinox and the end of the year");
+					//	Debug.Break();
+					//}
 					daysPast = d.DaysBetween(autumnEquinox);
-					if (debug)
-						Debug.Log("Days past since autumn Equinox: " + daysPast+"\n" +
-								"Change rate (seconds per day): " + autumnToWinterRate);
+					//if (debug)
+					//	Debug.Log("Days past since autumn Equinox: " + daysPast+"\n" +
+					//			"Change rate (seconds per day): " + autumnToWinterRate);
 					changeToAply =- (int)autumnToWinterRate * daysPast;
                     Time autumnEquinox_Sunrise;
                     sunriseTimes.TryGetValue(summerSolstice, out autumnEquinox_Sunrise);
@@ -206,21 +175,21 @@ namespace weatherSystem {
                         Debug.Break();
                     }
                     result = autumnEquinox_Sunrise.TimeWithSeconds(autumnEquinox_Sunrise, changeToAply);
-					if(debug){
-						Debug.Log("Result: " + result.ToString());
-						Debug.Break();
-					}
+					//if(debug){
+					//	Debug.Log("Result: " + result.ToString());
+					//	Debug.Break();
+					//}
 				}
 				if(compareWinter < 0) {
-					if (debug) {
-						Debug.Log("Date is between the start of the year and winter solstice");
-						Debug.Break();
-					}
+					//if (debug) {
+					//	Debug.Log("Date is between the start of the year and winter solstice");
+					//	Debug.Break();
+					//}
 					daysPast = d.DaysBetween(winterSolstice);
-					if (debug) {
-						Debug.Log("Days past since autumn Equinox: " + daysPast + "\n" +
-								"Change rate (seconds per day): " + autumnToWinterRate);
-					}
+					//if (debug) {
+					//	Debug.Log("Days past since autumn Equinox: " + daysPast + "\n" +
+					//			"Change rate (seconds per day): " + autumnToWinterRate);
+					//}
 					changeToAply = (int)autumnToWinterRate * daysPast;
                     Time autumnEquinox_Sunrise;
                     sunriseTimes.TryGetValue(summerSolstice, out autumnEquinox_Sunrise);
@@ -229,19 +198,20 @@ namespace weatherSystem {
                         Debug.Break();
                     }
                     result = autumnEquinox_Sunrise.TimeWithSeconds(autumnEquinox_Sunrise, changeToAply);
-					if (debug) {
-						Debug.Log("Result: " + result.ToString());
-						Debug.Break();
-					}
+					//if (debug) {
+					//	Debug.Log("Result: " + result.ToString());
+					//	Debug.Break();
+					//}
 				}
 				if (result == null){
 					Debug.LogError("Date " + d.ToString() + "sunrise time could not be calculated");
 					Debug.Break();
 				}
 				sunriseTimes.Add(d, result);
-				if(debug){
-					Debug.Log("new Entry added to sunriseTimes: (" + d.ToString() + " , "+ result.ToString() + ")");
-				}
+				//if(debug){
+				//	Debug.Log("new Entry added to sunriseTimes: (" + d.ToString() + " , "+ result.ToString() + ")");
+    //                Debug.Break();
+				//}
 			}
             return result.Clone();
         }
@@ -250,28 +220,29 @@ namespace weatherSystem {
         /*Returns time of the next Sunrise. If it is past Sunrise it will return the time of the next day's Sunrise*/
         public Time getNextSunriseTime(){
 			Time result = null;
-			if(debug){
-				Debug.Log("calculating next Sunrise, currentTime: " + currentTime.ToString());
-			}
+			//if(debug){
+			//	Debug.Log("calculating next Sunrise, current date: " + currentDate.ToString() + "\n currentTime: " + currentTime.ToString());
+			//}
             if (dayTime) {
 				result = getSunriseTime(currentDate.DateWithDays(1));
-				if(debug){
-					Debug.Log("it is past the current day Sunrise (its daytime): " + getSunriseTime() + " therefore, next sunrise is tomorrow's sunrise");
-					Debug.Break();
-				}
-			}
-            else {
-                if (currentTime.CompareTo(midnight) > 0) {
+				//if(debug){
+				//	Debug.Log("it is past the current day Sunrise (its daytime): " + getSunriseTime() + " therefore, next sunrise is tomorrow's sunrise");
+				//	Debug.Break();
+				//}
+			} else {
+                if (currentTime.CompareTo(new Time(23,59,59)) > 0) {
 					Time sunrise = getSunriseTime();
                     result = sunrise;
-					if(debug){
-						Debug.Log("it is night and aftermidnight, therefore next sunrise is currentDate's sunrise"); 
-						Debug.Break();
-					}
+					//if(debug){
+					//	Debug.Log("it is night and aftermidnight, therefore next sunrise is currentDate's sunrise"); 
+					//	Debug.Break();
+					//}
                 } else {
                     result = getSunriseTime( currentDate.DateWithDays(1));
-						Debug.Log("it is nighttime and it is before midnight, therefore next sunrise is tomorrow's sunrise");
-						Debug.Break();
+      //              if (debug) { 
+						//Debug.Log("it is nighttime and it is before midnight, therefore next sunrise is tomorrow's sunrise");
+						//Debug.Break();
+      //              }
                 }
             }
 
@@ -282,8 +253,8 @@ namespace weatherSystem {
             Time result = null;
             sunsetTimes.TryGetValue(d, out result);            
 			if(result == null){
-                if (debug)
-                    Debug.Log("---CALCULATING SUNSET FOR DATE: " + d.ToString() + "---------------");
+                //if (debug)
+                //    Debug.Log("---CALCULATING SUNSET FOR DATE: " + d.ToString() + "---------------");
                 int daysPast = 0;
 				int changeToAply;
 				int compareSummer = d.CompareTo(summerSolstice);
@@ -291,16 +262,16 @@ namespace weatherSystem {
 				int compareSpring = d.CompareTo(springEquinox);
 				int compareAutumn = d.CompareTo(autumnEquinox);
 				if (compareWinter > 0 && compareSpring < 0){
-					if (debug) {
-						Debug.Log("Date is between Winter Solstice and Spring Equinox");
-						Debug.Break();
-					}
+					//if (debug) {
+					//	Debug.Log("Date is between Winter Solstice and Spring Equinox");
+					//	Debug.Break();
+					//}
 					daysPast = d.DaysBetween(winterSolstice);
-					if (debug) {
-						Debug.Log("Days past since Winter solstice: " + daysPast + "\n" +
-								"Change rate (seconds per day): " + winterToSpringRate);
-						Debug.Break();
-					}
+					//if (debug) {
+					//	Debug.Log("Days past since Winter solstice: " + daysPast + "\n" +
+					//			"Change rate (seconds per day): " + winterToSpringRate);
+					//	Debug.Break();
+					//}
 					changeToAply = (int)winterToSpringRate * daysPast;
                     Time winterSolstice_Sunset;
                     sunsetTimes.TryGetValue(winterSolstice, out winterSolstice_Sunset);
@@ -309,101 +280,101 @@ namespace weatherSystem {
                         Debug.Break();
                     }
                     result = winterSolstice_Sunset.TimeWithSeconds(winterSolstice_Sunset, changeToAply);
-					if (debug) {
-						Debug.Log("Result: " + result.ToString());
-						Debug.Break();
-					}
-				}
-				if (compareSpring > 0 && compareSummer < 0){
-					if (debug) {
-						Debug.Log("Date is between spring Equinox and Summer solstice");
-						Debug.Break();
-					}
+                    //if (debug) {
+                    //	Debug.Log("Result: " + result.ToString());
+                    //  Debug.Break();
+                    //}
+                }
+                if (compareSpring > 0 && compareSummer < 0){
+					//if (debug) {
+					//	Debug.Log("Date is between spring Equinox and Summer solstice");
+					//	Debug.Break();
+					//}
 					daysPast = d.DaysBetween(springEquinox);
-					if (debug) {
-						Debug.Log("Days past since Spring Equinox: " + daysPast + "\n" +
-								"Change rate (seconds per day): " + springToSummerRate);
-						Debug.Break();
-					}
+					//if (debug) {
+					//	Debug.Log("Days past since Spring Equinox: " + daysPast + "\n" +
+					//			"Change rate (seconds per day): " + springToSummerRate);
+					//	Debug.Break();
+					//}
 					changeToAply = (int)springToSummerRate * daysPast;
                     Time springEquinox_Sunset;
                     sunsetTimes.TryGetValue(summerSolstice, out springEquinox_Sunset);
-                    if (springEquinox_Sunset.Equals(null)) {
-                        Debug.LogError("spring equinox sunrise could not be found");
-                        Debug.Break();
-                    }
+                    //if (springEquinox_Sunset.Equals(null)) {
+                    //    Debug.LogError("spring equinox sunrise could not be found");
+                    //    Debug.Break();
+                    //}
                     result = springEquinox_Sunset.TimeWithSeconds(springEquinox_Sunset, changeToAply);
-					if (debug) {
-						Debug.Log("Result: " + result.ToString());
-						Debug.Break();
-					}
+					//if (debug) {
+					//	Debug.Log("Result: " + result.ToString());
+					//	Debug.Break();
+					//}
 				}
 				if (compareSummer > 0 && compareAutumn < 0){
-					if (debug) {
-						Debug.Log("Date is between Sumemr solstice and Autumn Equinox");
-						Debug.Break();
-					}
+					//if (debug) {
+					//	Debug.Log("Date is between Sumemr solstice and Autumn Equinox");
+					//	Debug.Break();
+					//}
 					daysPast = d.DaysBetween(summerSolstice);
-					if (debug) {
-						Debug.Log("Days past since summer solstice: " + daysPast + "\n" +
-								"Change rate (seconds per day): " + summerToAutumnRate);
-						Debug.Break();
-					}
+					//if (debug) {
+					//	Debug.Log("Days past since summer solstice: " + daysPast + "\n" +
+					//			"Change rate (seconds per day): " + summerToAutumnRate);
+					//	Debug.Break();
+					//}
 					changeToAply = (int)summerToAutumnRate * daysPast;
                     Time summerSolstice_Sunset;
                     sunsetTimes.TryGetValue(summerSolstice, out summerSolstice_Sunset);
-                    if (summerSolstice_Sunset.Equals(null)) {
-                        Debug.LogError("summer solstice sunrise could not be found");
-                        Debug.Break();
-                    }
+                    //if (summerSolstice_Sunset.Equals(null)) {
+                    //    Debug.LogError("summer solstice sunrise could not be found");
+                    //    Debug.Break();
+                    //}
                     result = summerSolstice_Sunset.TimeWithSeconds(summerSolstice_Sunset, changeToAply);
-					if (debug) {
-						Debug.Log("Result: " + result.ToString());
-						Debug.Break();
-					}
+					//if (debug) {
+					//	Debug.Log("Result: " + result.ToString());
+					//	Debug.Break();
+					//}
 				}
 				if (compareAutumn > 0) {
-					if (debug) {
-						Debug.Log("Date is between Autumn Equinox and the end of the year");
-						Debug.Break();
-					}
+					//if (debug) {
+					//	Debug.Log("Date is between Autumn Equinox and the end of the year");
+					//	Debug.Break();
+					//}
 					daysPast = d.DaysBetween(autumnEquinox);
-					if (debug)
-						Debug.Log("Days past since autumn Equinox: " + daysPast + "\n" +
-								"Change rate (seconds per day): " + autumnToWinterRate);
+					//if (debug)
+					//	Debug.Log("Days past since autumn Equinox: " + daysPast + "\n" +
+					//			"Change rate (seconds per day): " + autumnToWinterRate);
 					changeToAply = (int)autumnToWinterRate * daysPast;
                     Time autumnEquinox_Sunset;
                     sunsetTimes.TryGetValue(summerSolstice, out autumnEquinox_Sunset);
-                    if (autumnEquinox_Sunset.Equals(null)) {
-                        Debug.LogError("autumn equinox sunrise could not be found");
-                        Debug.Break();
-                    }
+                    //if (autumnEquinox_Sunset.Equals(null)) {
+                    //    Debug.LogError("autumn equinox sunrise could not be found");
+                    //    Debug.Break();
+                    //}
                     result = autumnEquinox_Sunset.TimeWithSeconds(autumnEquinox_Sunset, changeToAply);
-					if (debug) {
-						Debug.Log("Result: " + result.ToString());
-						Debug.Break();
-					}
+					//if (debug) {
+					//	Debug.Log("Result: " + result.ToString());
+					//	Debug.Break();
+					//}
 				}
 				if (compareWinter < 0) {
-					if (debug) {
-						Debug.Log("Date is between the start of the year and winter solstice");
-					}
+					//if (debug) {
+					//	Debug.Log("Date is between the start of the year and winter solstice");
+					//}
 					daysPast = d.DaysBetween(winterSolstice);
-					if (debug)
-						Debug.Log("Days before winter solstice: " + daysPast + "\n" +
-								"Change rate (seconds per day): " + autumnToWinterRate);
+					//if (debug)
+					//	Debug.Log("Days before winter solstice: " + daysPast + "\n" +
+					//			"Change rate (seconds per day): " + autumnToWinterRate);
 					changeToAply = -(int)autumnToWinterRate * daysPast;
                     Time winterSolstice_Sunset;
                     sunsetTimes.TryGetValue(winterSolstice, out winterSolstice_Sunset);
-                    if (winterSolstice_Sunset.Equals(null)) {
-                        Debug.LogError("Winter solstice sunrise could not be found");
-                        Debug.Break();
-                    }
+                    //if (winterSolstice_Sunset.Equals(null)) {
+                    //    Debug.LogError("Winter solstice sunrise could not be found");
+                    //    Debug.Break();
+                    //}
                     result = winterSolstice_Sunset.TimeWithSeconds(winterSolstice_Sunset, changeToAply);
-					if (debug) {
-						Debug.Log("Result: " + result.ToString());
-						Debug.Break();
-					}
+					//if (debug) {
+					//	Debug.Log("Result: " + result.ToString());
+					//	Debug.Break();
+					//}
 				}
 				if(result == null){
 					Debug.LogError("Date " + d.ToString() + " sunset time could not be calculated");
@@ -417,22 +388,22 @@ namespace weatherSystem {
         public Time getSunsetTime() { return getSunsetTime(currentDate); }
         public Time getNextSunsetTime(){
             Time result = null;
-			if(debug){
-				Debug.Log("calculating next Sunset, currentTime: " + currentTime.ToString());
-			}
+			//if(debug){
+			//	Debug.Log("calculating next Sunset, currentTime: " + currentTime.ToString());
+			//}
 			if(dayTime) {
 				result = getSunsetTime();
-				if(debug){
-					Debug.Log("it is past the current day sunrise (its daytime): " + getSunriseTime() + " therefore, next sunset is today's");
-					Debug.Break();
-				}
+				//if(debug){
+				//	Debug.Log("it is past the current day sunrise (its daytime): " + getSunriseTime() + " therefore, next sunset is today's");
+				//	Debug.Break();
+				//}
 			}
 			else {
 				result = getSunsetTime(currentDate.DateWithDays(1));
-				if(debug){
-					Debug.Log("it is past the current day sunset (its nighttime): " + getSunriseTime() + " therefore, next sunset is tomorrow's");
-					Debug.Break();
-				}
+				//if(debug){
+				//	Debug.Log("it is past the current day sunset (its nighttime): " + getSunriseTime() + " therefore, next sunset is tomorrow's");
+				//	Debug.Break();
+				//}
 			}
             return result;
         }
@@ -469,7 +440,7 @@ namespace weatherSystem {
             for (int i = 0; i < Day_names.Length; i++)
             {
                 if (Day_names[i] == "")
-                    Debug.LogError("All day names mus be declared");
+                    Debug.LogError("All day names must be declared");
             }
 
             //initial date
@@ -510,9 +481,7 @@ namespace weatherSystem {
             int minutes = int.Parse(split[1]);
             int seconds = int.Parse(split[2]);
             currentTime = new Time(hours, minutes, seconds);
-            if (currentTime.CompareTo(getSunriseTime()) >= 0 && currentTime.CompareTo(getSunsetTime()) < 0) {
-                dayTime = true;
-            }
+            
 
             //Summer Solstice
             summer_solstice_date.Trim();
@@ -633,71 +602,46 @@ namespace weatherSystem {
             LengthDifference = winter_solstice_hours_of_light - autumn_equinox_hours_of_light;
             autumnToWinterRate = ((LengthDifference / 2.0) / daysbetween) * 3600;
 
+
+            if (currentTime.CompareTo(getSunriseTime()) >= 0 && currentTime.CompareTo(getSunsetTime()) < 0) {
+                dayTime = true;
+            }
         }
         
         // Use this for initialization
         void Start(){
-            if (debug) {
-                Debug.Log("LOOKIN FOR INITIAL SEASON: ");
-                Debug.Log("current date: " + currentDate.ToString());
-                Debug.Log("Sason loop: ");
-
-            }
             GameObject[] s = GameObject.FindGameObjectsWithTag("Season");
+            if(s.Length == 0) {
+                Debug.LogError("No object with tag 'Season' found");
+            }
             for (int i =0; i<s.Length; i++) {
                 Season aux = s[i].GetComponent<Season>();
                 if(aux == null) {
                     Debug.LogError("GameObject " + s[i].name + "has 'Season' tag but no Season script");
                 }
-                if (debug) {
-                    Debug.Break();
-                    Debug.Log("Season " + aux.name + "\n" +
-                            "start date: " + aux.GetStartDate().ToString() + "\t" + "end date: " + aux.GetEndDate().ToString());
-                }
                 if (aux.GetEndDate().CompareTo(aux.GetStartDate()) < 0) {
-                    if (debug) {
-                        Debug.Log("Season " + aux.name + " detected to go over new year");
-                    }
                     if(currentDate.CompareTo(aux.GetStartDate())>=0 || currentDate.CompareTo(aux.GetEndDate()) < 0) {
                         currentSeason = aux;
-                        if (debug) {
-                            Debug.Log("Current date in Season " + aux + " range");
-                        }
                         break;
                     }
                 }
                 else if(currentDate.CompareTo(aux.GetStartDate())>=0 && currentDate.CompareTo(aux.GetEndDate())<0) {
                     currentSeason = aux;
-                    if (debug) {
-                        Debug.Log("Current date in Season " + aux + " range");
-                    }
                     break;
                 }
             }
-
-            if (debug) {
-                Debug.Log("CHECKING SEASON LOOP: ----------");
-                Debug.Log("initial season: " + currentSeason.name);
+            if (currentSeason == null) {
+                Debug.LogError("Initial season could not be found");
             }
-            Season next = currentSeason.next_season;
+            Season next = currentSeason.GetNextSeason();
             int counter = 1;
-            if (debug) {
-                Debug.Log("next season: " + next.name + "\n" + "Counter: " + counter);
-            }
             while (counter <s.Length) {
                 next = next.next_season;
                 counter++;
-                if (debug) {
-                    Debug.Log("next season: " + next.name + "\n" + "Counter: " + counter);
-                }
             }
             if(next != currentSeason) {
                 Debug.LogError("Season Loop is not closed");
-            } else {
-                if (debug)
-                    Debug.Log("season loop complete");
-            }
-              
+            }               
         }
         
         // Update is called once per frame
@@ -712,16 +656,26 @@ namespace weatherSystem {
             //updating date
             if (dayChange > 0){
 				currentDate.AddDay(dayChange);
-				OnMidnightReached(EventArgs.Empty);
-				if(debug){
-					Debug.Log("Midnight reached: " + currentTime);           
-				}					
+                if (debug){
+					Debug.Log("Midnight reached: " + currentTime + "\n" + 
+                            "New date: " + currentDate);
+                    Debug.Break();
+				}
+                //Updating season
+                if (currentDate.CompareTo(currentSeason.GetEndDate()) == 0) {
+                    currentSeason = currentSeason.next_season;
+                    if (debug) {
+                        Debug.Log("Season updated, new Season: " + currentSeason.name);
+                        Debug.Break();
+                    }
+                }
+
             }
 			if(previousTime.CompareTo(midday)<0 && currentTime.CompareTo(midday)>= 0){
 				if(debug){
 					Debug.Log("Miday reached: " + currentTime);
-				}
-				OnMiddayReached(EventArgs.Empty);
+                    Debug.Break();
+                }
 			}
 
             //TODO: eventos de aviso amanecer/atardecer
@@ -729,24 +683,20 @@ namespace weatherSystem {
             Time todaySunset = getSunsetTime();
             if (!dayTime && currentTime.CompareTo(todaySunrise) >= 0 && currentTime.CompareTo(todaySunset) < 0){
                 if (debug) {
-                    Debug.Log("It's Sunrise time: " + todaySunrise.ToString());
-                    Debug.Log("current time: " + currentTime.ToString());
+                    Debug.Log("It's Sunrise time: \n " +
+                            "Sunrise time: " + todaySunrise.ToString() + "\t Current time: " + currentTime.ToString());
+                    Debug.Break();
                 }
                 dayTime = true;
-                OnSunriseReached(EventArgs.Empty);
-                if (debug){
-                    Debug.Log("daytime: " + dayTime);
-                }
+
             }else{
                 if (dayTime && currentTime.CompareTo(todaySunset) >= 0){
                     if (debug) {
-                        Debug.Log("It's Dkusk time: " + todaySunset.ToString());
-                        Debug.Log("current time: " + currentTime.ToString());
+                        Debug.Log("It's sunset time \n " +
+                            "Sunset time: " + todaySunset.ToString() + "\t Current time: " + currentTime.ToString());
+                        Debug.Break();
                     }
                     dayTime = false;
-                    OnSunsetReached(EventArgs.Empty);
-                    if(debug)
-                        Debug.Log("daytime: " + dayTime);
                 }
             }
         }
@@ -886,11 +836,10 @@ namespace weatherSystem {
         }
         public int CompareTo(object o){
             if (o == null) return 1;
-            Date other = (o as Date);
+            Date other = o as Date;
             if (other == null)
                 Debug.LogError("Object " + o.ToString() + " is not a date");
-            else
-            {
+            else{
                 if (this.yearMatters && other.yearMatters)
                     if (this.year != other.year) return this.year - other.year;
                 if (this.month != other.month) return this.month.Month_number - other.month.Month_number;
@@ -955,19 +904,6 @@ namespace weatherSystem {
 
 		#region Constructors:
         public Time(int hours, int minutes, int seconds){
-            if (seconds > 59||seconds<0) {
-                Debug.LogError("Trying to create a new Time with invalid seconds: " + seconds);
-            }
-            if (minutes > 59 || minutes < 0) {
-                Debug.LogError("Trying to create a new Time with invalid minutes: " + minutes);
-            }
-            if(hours >24 || hours < 0) {
-                Debug.LogError("Trying to create a new Time with invalid hours: " + hours);
-            }
-            if (hours == 24) {
-                hours = 0;
-            }
-
             this.hours = hours;
             this.minutes = minutes;
             this.seconds = seconds;
@@ -986,7 +922,7 @@ namespace weatherSystem {
 		public int ToSeconds(){
             return hours * 3600 + minutes * 60 + seconds;
         }
-        public Time secondsToTime(int seconds){
+        public Time secondsToTime(int seconds){//86440
             int h = seconds / 3600;
             seconds = seconds % 3600;
             int m = seconds / 60;
@@ -1002,10 +938,10 @@ namespace weatherSystem {
         public int add(int s){
             int sec = ToSeconds() + s;
             int daysChanged = 0;
-			while(sec <0){
-				daysChanged --; 
-				sec += 24*3600;
-			}
+			//while(sec <0){
+			//	daysChanged --; 
+			//	sec += 24*3600;
+			//}
             Time newtime = secondsToTime(sec);
             while (newtime.hours >= 24)
             {

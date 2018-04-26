@@ -12,12 +12,12 @@ namespace weatherSystem
         public string Start_date = "dd/mm/yyyy";
         public string End_date = "dd/mm/yyyy";
         public Season next_season;
+		public int index;
 		#endregion Public Atributes
 		#region Private Atributes
         private Date startDate;
         private Date endDate;
 		#endregion Private Atributes
-		
 		
 		#region Get and Set functions
 		public Date GetStartDate(){return startDate;}

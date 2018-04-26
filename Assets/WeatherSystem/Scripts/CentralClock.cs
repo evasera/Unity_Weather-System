@@ -73,8 +73,7 @@ namespace weatherSystem {
         public Date GetSpringEquinox() { return springEquinox.Clone(); }
 		public double GetWinterToSpringRate(){return winterToSpringRate;}
         /*Returns Sunrise time of a given date*/
-        public Time getSunriseTime(Date d){	
-			
+        public Time getSunriseTime(Date d){			
             Time result = null;
             sunriseTimes.TryGetValue(d, out result);
 			if(result == null){
@@ -104,7 +103,8 @@ namespace weatherSystem {
                         Debug.LogError("Winter solstice sunrise could not be found");
                         Debug.Break();
                     }
-                    result = winterSolstice_Sunrise.TimeWithSeconds(winterSolstice_Sunrise, changeToAply); 
+						result = winterSolstice_Sunrise.TimeWithSeconds(winterSolstice_Sunrise, changeToAply); 
+				
 					//if(debug){
 					//	Debug.Log("Result: " + result.ToString());
 					//	Debug.Break();
@@ -610,6 +610,7 @@ namespace weatherSystem {
         
         // Use this for initialization
         void Start(){
+			//TODO: comprobar los indices de cada estacion, no puede haber duplicados ni numeros mayores a numero de estaciones -1; 
             GameObject[] s = GameObject.FindGameObjectsWithTag("Season");
             if(s.Length == 0) {
                 Debug.LogError("No object with tag 'Season' found");

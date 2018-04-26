@@ -19,7 +19,7 @@ namespace weatherSystem {
         private int phaseIndex;
         private int[] phaseLengths;
         private int daysSincePhaseChange;
-        private MeshRenderer renderer;
+        private new MeshRenderer renderer;
         private CentralClock clock;
 		private static bool middayReached;
         private Time previousTime = new Time(0,0,0);

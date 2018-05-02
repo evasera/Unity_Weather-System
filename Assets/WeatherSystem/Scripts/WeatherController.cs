@@ -10,18 +10,23 @@ namespace weatherSystem {
 
 		[Header ("Symulation parameters:")]
 		public int update_frequency = 60;
-		public double previous_state_influence;
-		public double biome_influence;
+		public float previous_state_influence;
+		public float biome_influence;
 		
 		[Header ("Map settings:")]
 		public Vector3 originPosition;
 		public Vector3 endPosition;
 		public int chunkSize;
-		public Biome[][] biomeDistribution;
+		public Biome[,] biomeDistribution;
+		
+		[Header ("softening settings:")]
+		public double samePosition = 0.4;
+		public double directlyAdjacent = 0.1;
+		public double diagonalPosition= 0.05;
 		
 		[Header ("Random Generation Values:")]
 		public float probability_stdDev;
-        public float Intensity_stdDev;
+        public float intensity_stdDev;
 		public float temperature_stdDev;
 		
 		[Header ("Weather Visualization (Particle Systems):")]
@@ -36,19 +41,117 @@ namespace weatherSystem {
         #region private Atributes
         private CentralClock clock;
         private Time lastUpdate;
-		private WeatherState currentState;
-		private WeatherState nextState;
-		private WeatherState previousState;
-		private Biome[][] biomes;
+		private Season currentSeason;
+		private WeatherState [,] currentState;
+		private WeatherState [,] nextState;
+		private WeatherState [,] previousState;
         #endregion private Atributes 
 
-		private WeatherState GetNextState(WeatherState currentState, Biome biome){
-            float temperature = currentState.GetTemperature() + GenerateNormalRandom(0, temperature_stdDev );
-            int clouds = currentState.GetClouds() + (int) GenerateNormalRandom(0, Intensity_stdDev);
-            int rain = currentState.GetRain() + (int)GenerateNormalRandom(0, Intensity_stdDev);
-            int snow = currentState.GetSnow() + (int)GenerateNormalRandom(0, Intensity_stdDev);
-            int lightning = currentState.GetLightning() + (int)GenerateNormalRandom(0, Intensity_stdDev);
-            return new WeatherState(temperature, clouds, rain, snow, lightning);
+		private WeatherState[,] GetNextState(){
+            WeatherState[,] result = new WeatherState[currentState.GetLength(0), currentState.GetLength(1)]; 
+			int seasonIndex = currentSeason.GetIndex(); //it is common for all the map
+			for(int i = 0; i<result.GetLength(0); i++){
+				for(int j = 0; j<result.GetLength(1); j++){
+					Biome biome = biomeDistribution[i,j];
+					WeatherState previous = currentState[i, j];
+					WeatherState current = new WeatherState(0,0,0,0,0);
+					
+					//TODO: ¿añadir la intensidad de las nubes a los calculos de probabilidad de la simulacion? (lluvia, nieve, etcetera etcetera )
+					
+					//New State cloud calculations
+					//The probability of some clouds is 100%, so no probability calculated for clouds
+					int cloudIntensity = (int) (previous.GetClouds()*previous_state_influence + biome.GetIntensity(Biome.CLOUDS, seasonIndex)*biome_influence + GenerateNormalRandom(0, intensity_stdDev));
+					cloudIntensity = Mathf.Min(10, Mathf.Max(0, cloudIntensity));
+					
+					
+					//New State Rain calculations
+					//probability:
+					float rainProbability = (float) ((previous.GetRain()/10.0)*previous_state_influence + biome.GetProbability(Biome.RAIN, seasonIndex)*biome_influence + GenerateNormalRandom(0, probability_stdDev));
+                    rainProbability = Mathf.Max(0, Mathf.Min(1, rainProbability));
+                    //intensity
+                    int rainIntensity = 0;
+
+                    if (Random.value > rainProbability){
+						rainIntensity = (int)(previous.GetRain()*previous_state_influence + biome.GetIntensity(Biome.RAIN, seasonIndex)*biome_influence);
+						rainIntensity+= (int) GenerateNormalRandom(0, intensity_stdDev);
+						// the rain intensity is at most as big as the clouds allow
+						rainIntensity = Mathf.Min(cloudIntensity, Mathf.Max(0, rainIntensity)); 
+						
+					}					
+					//New State Snow calculations
+					//probability:
+					float snowProbability = (float)((previous.GetSnow()/10.0)*previous_state_influence + biome.GetProbability(Biome.SNOW, seasonIndex)*biome_influence + GenerateNormalRandom(0, probability_stdDev));
+					snowProbability = Mathf.Max(0, Mathf.Min(1, snowProbability));
+                    //intensity
+                    int snowIntensity = 0;
+                    if (Random.value > snowProbability){
+						snowIntensity = (int) (previous.GetSnow()*previous_state_influence + biome.GetIntensity(Biome.SNOW, seasonIndex)*biome_influence + GenerateNormalRandom(0, intensity_stdDev));
+						// the snow intensity is at most as big as the clouds allow
+						snowIntensity = Mathf.Min(cloudIntensity, Mathf.Max(0, snowIntensity)); 
+						
+					}
+					//coherence test, no rain and snow at the same time:
+					if(rainIntensity > 0 && snowIntensity >0){
+						if(rainProbability>snowProbability){
+							snowIntensity = 0;
+						}else{
+							rainIntensity = 0;
+						}
+					}
+					
+					//New State storm calculations
+					int stormIntensity = 0;
+					if(rainIntensity>=5){
+						//probability
+						float stormProbability = (float) (((previous.GetLightning()/10.0)*0.4 + (rainIntensity/10)*0.6 )* previous_state_influence + biome.GetProbability(Biome.LIGHTNING, seasonIndex)*biome_influence + GenerateNormalRandom(0.0f, probability_stdDev));
+						stormProbability = Mathf.Max(0, Mathf.Min (1, rainIntensity));
+						
+						if(Random.value>stormProbability){
+							stormIntensity = (int) (previous.GetLightning()*previous_state_influence + biome.GetIntensity(Biome.LIGHTNING, seasonIndex)*biome_influence + GenerateNormalRandom(0.0f, intensity_stdDev));
+							stormIntensity = Mathf.Min(rainIntensity, Mathf.Max (0, stormIntensity));
+						}
+					}					
+					
+					current.SetClouds(cloudIntensity);
+					current.SetRain(rainIntensity);
+					current.SetSnow(snowIntensity);
+					current.SetLightning(stormIntensity);
+					
+					result[i,j] = current;
+				}
+			}
+			//Softening phase, to avoid drastic changes in the weather.
+			WeatherState[,] copy = (WeatherState[,])result.Clone(); // TODO: esto no va, porque la estupida asignacion es por estupida referencia
+            int size0 = result.GetLength(0);
+			int size1 = result.GetLength(1);
+			for(int i= 0; i<size0; i++){
+				for(int j= 0; j<size1; j++){
+					//if(i == 0){
+					//	if(j==0){ //esquina sup.izq
+					//		result[i, j] = copy[i, j]*samePosition + 2*(copy[i+1, j] + copy[i, j+1])*directlyAdjacent + 4*copy[i+1, j+1]*diagonalPosition;
+					//	}else if(j == size1){ // esquina sup derecha
+					//		result[i, j] = copy[i, j]*samePosition + 2*(copy[i+1, j] + copy[i, j+-])*directlyAdjacent + 4*copy[i+1, j-1]*diagonalPosition;
+					//	}else{ //fila superior
+					//		result[i,j] = copy[i,j]*samePosition + (2*copy[i+1, j] + copy[i, j+1] + copy[i, j-1])*directlyAdjacent + 2*(copy[i-1, j+1] + copy[i+1, j-1])*diagonalPosition;
+					//	}
+					//}else if(i == size0){
+					//	if(j==0){ //esquina inf. izq
+					//		result[i, j] = copy[i, j]*samePosition + 2*(copy[i-1, j] + copy[i, j+1])*directlyAdjacent + 4*copy[i-1, j+1]*diagonalPosition;
+					//	}else if(j == size1){ // esquina inf. derecha
+					//		result[i, j] = copy[i, j]*samePosition + 2*(copy[i-1, j] + copy[i, j-1])*directlyAdjacent + 4*copy[i-1, j-1]*diagonalPosition;
+					//	}else{ //fila inferior
+					//		result[i,j] = copy[i,j]*samePosition + (2*copy[i-1, j] + copy[i, j+1] + copy[i, j-1])*directlyAdjacent + 2*(copy[i-1, j+1] + copy[i-1, j-1])*diagonalPosition;
+					//	}
+					//}else if(j==0){//columna borde izquierdo
+					//	result[i, j] = copy[i, j]* samePosition + (copy[i+1, j] + copy[i-1, j] + 2* copy[i, j+1])*directlyAdjacent + 2*(copy[i+1, j+1] + copy[i-1, j+1])*diagonalPosition;
+					//}else if(j == size1){//columna borde derecho
+					//	result[i, j] = result[i, j] = copy[i, j]* samePosition + (copy[i+1, j] + copy[i-1, j] + 2* copy[i, j-1])*directlyAdjacent + 2*(copy[i+1, j-1] + copy[i-1, j-1])*diagonalPosition;
+					//}else{ //celdas sin borde
+					//	result[i,j] = copy[i,j]*samePosition + (copy[i-1, j] + copy[i+1, j] + copy[i, j-1] + copy[i, j+1])*directlyAdjacent + (copy[i-1, j-1] + copy[i-1, j+1] + copy[i+1, j-1] + copy[i+1, j+1])*diagonalPosition;
+					//}
+				}
+			}
+            return result;
 		}
  
         public static float GenerateNormalRandom(float mu, float sigma) {
@@ -59,35 +162,50 @@ namespace weatherSystem {
 
             return (mu + sigma * n);
         }
-		
-		private Biome createDesertBiome(){
-            //NOTE: this values need to be modified acording to user preference. Also, remember to add as many lines as seasons on the system, and even more important, the identifier in the season script needs to match the index in theese tables.
-            int[,] intensities = new int[4,4] {{ 3, 1, 0, 0 },{ 4, 1, 0, 0 }, { 4, 1, 0, 0 }, { 4, 1, 0, 0 } }; //for every season: clouds, rain, lighning, snow. //season order: winter, spring, summer, autumn
-            double[,] probabilities = new double [4, 4] {{1,0.1,0.1,0.0}, {1,0.1,0.1,0.0 }, {1,0.1,0.1,0.0 }, {1,0.2,0.1,0.0 } };
-            int[,] temperatures = new int[4, 2] { { 16, 40 }, { 16, 40}, { 16, 40}, { 16, 40 } };
-            Biome result = new Biome(probabilities, intensities, temperatures);
-			return result;
-		}
 
-        private void Awake() {
+        public override string ToString() {
+            string result = "SEASON: " + currentSeason.name + "\n";
+            int seasonIndex = currentSeason.GetIndex(); //it is common for all the map
+            for (int i = 0; i < currentState.GetLength(0); i++) {
+                for (int j = 0; j < currentState.GetLength(1); j++) {
+                    result += "CHUNK " + i + ", " + j;
+                    WeatherState s = currentState[i, j];
+                    result += s.ToString();
+                }
+            }
+            return result;
+        }
+
+        void Awake() {
             clock = GameObject.FindGameObjectWithTag("Clock").GetComponent<CentralClock>();
+			
+			//checking softening values
+			if((samePosition + directlyAdjacent*4 + diagonalPosition*4)!= 1){
+				Debug.LogError("WEATHERCONTROLLER: There is an error with the softening values, please revise it \n" + 
+								"samePosition + directlyAdjacent*4 + diagonalPosition*4 is not 1");
+			}
+			if(previous_state_influence + biome_influence != 1){
+				Debug.LogError("WEATHERCONTROLLER: There is an error with the simulation parameters, previous_state_influence and biome_influence need to sum 1"); //TODO: esta frase esta bien escrita???
+			}
+			
+			
             if (clock == null) {
-                Debug.LogError("No clock could be found, please remember to tag the object with the CentralClock script with the tag 'Clock' ");
+                Debug.LogError("WEATHERCONTROLLER: No clock could be found, please remember to tag the object with the CentralClock script with the tag 'Clock' ");
                 Debug.Break();
             }
             
             if(rainSystem == null) {
-                Debug.LogError("Weather controller needs a rain system reference");
+                Debug.LogError("WEATHERCONTROLLER: rain system reference can not be null");
             }
             if (snowSystem == null) {
-                Debug.LogError("Weather controller needs a snow system reference");
+                Debug.LogError("WEATHERCONTROLLER: snow system reference can not be null");
             }
             if (lightningSystem == null) {
-                Debug.LogError("Weather controller needs a lighning system reference");
+                Debug.LogError("WEATHERCONTROLLER: lighning system reference can not be null");
             }
 			
-			currentState = new WeatherState(20.0f, 8, 2, 0, 0);
-        }
+			//currentState = new WeatherState[,];
+		}
 
         // Use this for initialization
         void Start() {
@@ -98,10 +216,12 @@ namespace weatherSystem {
         void Update() {
             Time currentTime = clock.getCurrentTime();
             if(lastUpdate.SecondsBetween(currentTime)>= (update_frequency * 60)) {
-                WeatherState next = GetNextState(currentState, biome);//TODO: aqui se llama a metodo para calcular nuevo estado
+				currentSeason = clock.GetSeason();
+                //WeatherState next = GetNextState(currentState, biome);//TODO: aqui se llama a metodo para calcular nuevo estado
                 if (debug) {
-                    Debug.Log("new weather State: \n" + next.ToString());
-                    Debug.Break();
+                    Debug.Log("WEATHERCONTROLLER: A new Weather has been calculated: ");
+					Debug.Log(ToString());
+					Debug.Break();
                 }
                 lastUpdate = currentTime.Clone();
             }

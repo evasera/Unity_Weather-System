@@ -23,7 +23,7 @@ namespace weatherSystem {
         private Time nextSunset;
         private bool daytime;
         private float rotationSpeed;
-		private float sunRotationAxis;
+		private float previousInclinationAngle = 0.0f; 
 		//private Vector3 sunRotationAxis;
 		#endregion Private Atributes
 	   public void Awake(){
@@ -40,11 +40,7 @@ namespace weatherSystem {
         // Use this for initialization
         void Start(){
             currentTime = clock.getCurrentTime();
-            //recordar que tanto el sol como la luna se tienen que dejar en el editor en la posicion de medianoche
-
-            // getting currentTime, nextSunrise and nextSunset from cenctal clock. 
-            //PS: currentTime is  passed as reference, wich means it will always be updated, no need to call the method every frame
-             
+            //recordar que tanto el sol como la luna se tienen que dejar en el editor en la posicion de medianoche         
 			
 			Time startDaySunrise = clock.getSunriseTime();
 			Time startDaySunset = clock.getSunsetTime();
@@ -52,8 +48,6 @@ namespace weatherSystem {
             Time start = previousTime;
             Time end = clock.getCurrentTime();
 
-				
-            //Speed and transformation
             if (debug) {
                 Debug.Log("INITIALIZING SUN/MOON POSITION-----------------------");
                 Debug.Log("dayTime: " + daytime + "\n" +
@@ -64,8 +58,7 @@ namespace weatherSystem {
 			//TODO: change sun moon rotation so that the initial position is at midday not midnight
 			
 			//night speed:
-			Date yesterday = new Date (clock.GetDay(), clock.getMonth(), clock.GetYear());
-			yesterday.SubstractDay(1);
+			Date yesterday = clock.getCurrentDate().DateWithDays(-1);
 			Time yesterdaySunset = clock.getSunsetTime(yesterday);
 
             if (debug) {
@@ -162,44 +155,71 @@ namespace weatherSystem {
                 daytime = false;
 			}
 			
-			previousTime = currentTime.Clone();
-		/*	
-			if(sun){
-				if(debug){
-					Debug.Log("Calculating sun rotation on z axis (inclination): -------");
+			//INCLINATION ANGLE CHANGE:
+			float inclinationAngle;
+			float hoursOfLight = startDaySunrise.SecondsBetween(startDaySunset)/3600.0f;
+			if(hoursOfLight>= 12){
+				if(!sun){
+					double hoursOfDarkness = 24  - hoursOfLight;
+					inclinationAngle = (float)(hoursOfDarkness*90.0f/12.0 ) - previousInclinationAngle;
+				}else{
+					inclinationAngle = 0-previousInclinationAngle;
 				}
-				int secondsOfLight = startDaySunrise.SecondsBetween(startDaySunset); 
-				float angle = secondsOfLight*90/(12*3600);
-				angle =Mathf.Max(0, Mathf.Min(angle, 1));
-				if(debug){
-					Debug.Log("Seconds of light: " + secondsOfLight + "\n" +
-							"Axis angle: " + angle);
-					Debug.Break();
-				}
-				transform.RotateAround(Vector3.zero, Vector3.forward, angle);					
-				
-			}else{
-				if(debug){
-					Debug.Log("Calculating moon rotation on z axis (inclination): -------");
-				}
-				int secondsOfDarkness = 24*3600 - startDaySunrise.SecondsBetween(startDaySunset); 
-				float angle = secondsOfDarkness*90/(12*3600);
-				angle = Mathf.Max(0, Mathf.Min(angle, 1));
-                if (debug){
-					Debug.Log("Seconds of darkness: " + secondsOfDarkness + "\n" +
-							"Axis angle: " + angle);
-					Debug.Break();
-				}
-				transform.RotateAround(Vector3.zero, Vector3.forward, angle);
-			}
-            */
 
+			}else{
+				if(sun){
+					inclinationAngle = (float)(hoursOfLight*90.0/12.0) - previousInclinationAngle;
+				} else{
+					double hoursOfDarkness = 24 - hoursOfLight;
+					if(hoursOfDarkness <12){
+						inclinationAngle = (float)(hoursOfDarkness*90.0/12.0) - previousInclinationAngle;
+					}else{
+						inclinationAngle = 0-previousInclinationAngle;
+					}
+				}
+			}
+			transform.RotateAround(Vector3.zero, Vector3.forward, inclinationAngle);
+			previousInclinationAngle = inclinationAngle;
+			previousTime = currentTime.Clone();
         }
 
         void Update(){
             currentTime = clock.getCurrentTime();
 			Time sunset = clock.getSunsetTime();
 			Time sunrise = clock.getSunriseTime();
+			Time midday = clock.GetMiddayTime();
+			
+			
+			//INCLINATION ANGLE CHANGE:
+			if(sun && currentTime.CompareTo(previousTime)<0){ //it is midnight
+				double hoursOfLight = sunrise.SecondsBetween(sunset);
+				float inclinationAngle = (float) (hoursOfLight*90.0/12.0) - previousInclinationAngle;
+				if(debug){
+					Debug.Log("Midnight reached, the sun's inclination angle needs to be updated \name " + 
+							"Hours of light for the day: " + hoursOfLight + "\t New angle calculated: " + (hoursOfLight*90.0/12.0));
+					Debug.Break();
+				}
+				transform.RotateAround(Vector3.zero, Vector3.forward, inclinationAngle);
+				previousInclinationAngle = inclinationAngle;
+				if(debug){
+					Debug.Break();
+				}
+			}
+			if(!sun && currentTime.CompareTo(midday)>=0 && currentTime.CompareTo(midday)<0){
+				double hoursOfDarkness = sunset.SecondsBetween(clock.getNextSunriseTime());
+				float inclinationAngle = (float) (hoursOfDarkness*90.0/12.0) - previousInclinationAngle;
+				if(debug){
+					Debug.Log("midday reached, the moon's inclination angle needs to be updated \name " + 
+							"Hours of darkness for the day: " + hoursOfDarkness + "\t New angle calculated: " + (hoursOfDarkness*90.0/12.0));
+					Debug.Break();
+				}	
+				transform.RotateAround(Vector3.zero, Vector3.forward, inclinationAngle);
+				previousInclinationAngle = inclinationAngle;
+				if(debug){
+					Debug.Break();
+				}
+			
+			}
 			
 			//check if sunset has been reached		
 			if(daytime && currentTime.CompareTo(sunset)>=0){
@@ -285,6 +305,8 @@ namespace weatherSystem {
 				float rotationAngle = rotationSpeed*timePased;
 				transform.RotateAround(Vector3.zero, Vector3.right, rotationAngle);
             }			
+			
+			
 			
 			previousTime = currentTime.Clone();			
         }

@@ -288,14 +288,18 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\WeatherSystem\Scripts\Biome.cs" />
     <Compile Include="Assets\WeatherSystem\Scripts\CentralClock.cs" />
-    <Compile Include="Assets\WeatherSystem\Scripts\Climate.cs" />
+    <Compile Include="Assets\WeatherSystem\Scripts\Date.cs" />
     <Compile Include="Assets\WeatherSystem\Scripts\GUI.cs" />
     <Compile Include="Assets\WeatherSystem\Scripts\Month.cs" />
     <Compile Include="Assets\WeatherSystem\Scripts\MoonPhases.cs" />
     <Compile Include="Assets\WeatherSystem\Scripts\Season.cs" />
+    <Compile Include="Assets\WeatherSystem\Scripts\StarFade.cs" />
     <Compile Include="Assets\WeatherSystem\Scripts\SunMoonRotation.cs" />
+    <Compile Include="Assets\WeatherSystem\Scripts\Time.cs" />
     <Compile Include="Assets\WeatherSystem\Scripts\WeatherController.cs" />
+    <Compile Include="Assets\WeatherSystem\Scripts\WeatherState.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Creditos.txt" />

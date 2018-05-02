@@ -6,10 +6,10 @@ namespace weatherSystem {
 	public class Biome: MonoBehaviour{
 		
 		#region constants
-		const int CLOUDS = 0;
-        const int RAIN = 1;
-        const int LIGHTNING = 2;
-        const int SNOW = 3;
+		public const int CLOUDS = 0;
+        public const int RAIN = 1;
+        public const int LIGHTNING = 2;
+        public const int SNOW = 3;
         #endregion constants
 
         [Tooltip("a matrix of size[num. Seasons][num. weather conditions], filled with the probability of a cetrain weather condition for a certain season. All values go from 0 to 1. \n " + 
@@ -34,7 +34,7 @@ namespace weatherSystem {
 		}
 		
 		public int[,] GetIntensities (){return intensities;}
-		public int GetIntenity(int season, int weatherCondition){return intensities[season,weatherCondition];}
+		public int GetIntensity(int season, int weatherCondition){return intensities[season,weatherCondition];}
 		public double[,] GetProbabilities(){return probaibilities; }
 		public double GetProbability(int season, int weatherCondition){return probaibilities[season,weatherCondition];}
         //TODO: falta get and set int[][] temperatures

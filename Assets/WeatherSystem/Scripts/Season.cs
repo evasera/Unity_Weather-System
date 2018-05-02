@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace weatherSystem
-{
+namespace weatherSystem{
     public class Season : MonoBehaviour{
 		
 		#region Public Atributes
@@ -14,6 +13,7 @@ namespace weatherSystem
         public Season next_season;
 		public int index;
 		#endregion Public Atributes
+		
 		#region Private Atributes
         private Date startDate;
         private Date endDate;
@@ -23,11 +23,12 @@ namespace weatherSystem
 		public Date GetStartDate(){return startDate;}
 		public Date GetEndDate(){return endDate;}
 		public Season GetNextSeason(){return next_season;}
+		public int GetIndex(){return index;}
 		#endregion Get and Set functions
 		
 		public bool Equals(Object o){
 			if(debug){
-				Debug.Log("Chequing Equality between Season " + this.name + "and Object o:" + o.name);
+				Debug.Log("Checking Equality between Season " + this.name + "and Object o:" + o.name);
 			}
 			Season other = o as Season;
 			if(other == null){
@@ -35,13 +36,22 @@ namespace weatherSystem
 				return false;
 			}
 			else{
-				return startDate.Equals(other.GetStartDate()) && endDate.Equals(other.GetStartDate()) && name.Equals(other.name);
+				bool result = startDate.Equals(other.GetStartDate()) && endDate.Equals(other.GetStartDate()) && name.Equals(other.name);
+				if(debug){
+					Debug.Log("Result: " + result);
+				}
+				return result;
 			}
 		}
 	
         
         
         private void Awake(){
+			//Index is not negative:
+			if(index <0){
+				Debug.LogError("SEASON " + this.name + ": Index number can not be negative");
+			}
+			
             //Validate start date
             Start_date.Trim();
             if (debug) {
@@ -66,7 +76,7 @@ namespace weatherSystem
                 }
             }
             if (month == null){
-                Debug.LogError("Season " + this.name + " start date's month could not be found");
+                Debug.LogError("SEASON " + this.name + ": start date's month could not be found");
 				Debug.Break();
 			}
 
@@ -114,7 +124,7 @@ namespace weatherSystem
                 }
             }
             if (month == null){
-                Debug.LogError("Season " + this.name + " end date's month could not be found");
+                Debug.LogError("SEASON " + this.name + ": end date's month could not be found");
 				Debug.Break();
 			}
 
@@ -123,7 +133,7 @@ namespace weatherSystem
             
 			//validate next Season:
 			if(next_season == null){
-				Debug.LogError("Season " + this.name + ": next month can not be null");
+				Debug.LogError("SEASON " + this.name + ": next month can not be null");
 				Debug.Break();
 			}
         }

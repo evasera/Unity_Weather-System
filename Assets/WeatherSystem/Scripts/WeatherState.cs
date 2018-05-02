@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace weatherSystem {
     public class WeatherState{
+		
 		#region Public Atributes
 		private int clouds;
 		private int rain;

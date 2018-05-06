@@ -121,34 +121,63 @@ namespace weatherSystem {
 				}
 			}
 			//Softening phase, to avoid drastic changes in the weather.
-			WeatherState[,] copy = (WeatherState[,])result.Clone(); // TODO: esto no va, porque la estupida asignacion es por estupida referencia
-            int size0 = result.GetLength(0);
-			int size1 = result.GetLength(1);
+			result = Softening(result);
+            return result;
+		}
+		
+		public WeatherState[,] Softening (WeatherState[,] initialState){
+            int size0 = initialState.GetLength(0);
+			int size1 = initialState.GetLength(1);
+			WeatherState[,] result = new WeatherState[size0, size1];
 			for(int i= 0; i<size0; i++){
 				for(int j= 0; j<size1; j++){
-					//if(i == 0){
-					//	if(j==0){ //esquina sup.izq
-					//		result[i, j] = copy[i, j]*samePosition + 2*(copy[i+1, j] + copy[i, j+1])*directlyAdjacent + 4*copy[i+1, j+1]*diagonalPosition;
-					//	}else if(j == size1){ // esquina sup derecha
-					//		result[i, j] = copy[i, j]*samePosition + 2*(copy[i+1, j] + copy[i, j+-])*directlyAdjacent + 4*copy[i+1, j-1]*diagonalPosition;
-					//	}else{ //fila superior
-					//		result[i,j] = copy[i,j]*samePosition + (2*copy[i+1, j] + copy[i, j+1] + copy[i, j-1])*directlyAdjacent + 2*(copy[i-1, j+1] + copy[i+1, j-1])*diagonalPosition;
-					//	}
-					//}else if(i == size0){
-					//	if(j==0){ //esquina inf. izq
-					//		result[i, j] = copy[i, j]*samePosition + 2*(copy[i-1, j] + copy[i, j+1])*directlyAdjacent + 4*copy[i-1, j+1]*diagonalPosition;
-					//	}else if(j == size1){ // esquina inf. derecha
-					//		result[i, j] = copy[i, j]*samePosition + 2*(copy[i-1, j] + copy[i, j-1])*directlyAdjacent + 4*copy[i-1, j-1]*diagonalPosition;
-					//	}else{ //fila inferior
-					//		result[i,j] = copy[i,j]*samePosition + (2*copy[i-1, j] + copy[i, j+1] + copy[i, j-1])*directlyAdjacent + 2*(copy[i-1, j+1] + copy[i-1, j-1])*diagonalPosition;
-					//	}
-					//}else if(j==0){//columna borde izquierdo
-					//	result[i, j] = copy[i, j]* samePosition + (copy[i+1, j] + copy[i-1, j] + 2* copy[i, j+1])*directlyAdjacent + 2*(copy[i+1, j+1] + copy[i-1, j+1])*diagonalPosition;
-					//}else if(j == size1){//columna borde derecho
-					//	result[i, j] = result[i, j] = copy[i, j]* samePosition + (copy[i+1, j] + copy[i-1, j] + 2* copy[i, j-1])*directlyAdjacent + 2*(copy[i+1, j-1] + copy[i-1, j-1])*diagonalPosition;
-					//}else{ //celdas sin borde
-					//	result[i,j] = copy[i,j]*samePosition + (copy[i-1, j] + copy[i+1, j] + copy[i, j-1] + copy[i, j+1])*directlyAdjacent + (copy[i-1, j-1] + copy[i-1, j+1] + copy[i+1, j-1] + copy[i+1, j+1])*diagonalPosition;
-					//}
+					if(i == 0){
+						if(j==0){ //esquina sup.izq
+							result[i,j].SetClouds((int)( initialState[i, j].GetClouds()*samePosition + 2*(initialState[i+1, j].GetClouds() + initialState[i, j+1].GetClouds())*directlyAdjacent + 4*initialState[i+1, j+1].GetClouds()*diagonalPosition));
+							result[i,j].SetRain((int)( initialState[i, j].GetRain()*samePosition + 2*(initialState[i+1, j].GetRain() + initialState[i, j+1].GetRain())*directlyAdjacent + 4*initialState[i+1, j+1].GetRain()*diagonalPosition));
+							result[i,j].SetSnow((int)( initialState[i, j].GetSnow()*samePosition + 2*(initialState[i+1, j].GetSnow() + initialState[i, j+1].GetSnow())*directlyAdjacent + 4*initialState[i+1, j+1].GetSnow()*diagonalPosition));
+							result[i,j].SetLightning((int)( initialState[i, j].GetLightning()*samePosition + 2*(initialState[i+1, j].GetLightning() + initialState[i, j+1].GetLightning())*directlyAdjacent + 4*initialState[i+1, j+1].GetLightning()*diagonalPosition));
+							//TODO: falta comprobar queno haya nieve y lluvia a la vez
+						}else if(j == size1){ // esquina sup derecha
+							result[i, j].SetClouds((int)( initialState[i, j].GetClouds()*samePosition + 2*(initialState[i+1, j].GetClouds() + initialState[i, j++].GetClouds())*directlyAdjacent + 4*initialState[i+1, j-1].GetClouds()*diagonalPosition  ));
+							result[i, j].SetRain((int)( initialState[i, j].GetRain()*samePosition + 2*(initialState[i+1, j].GetRain() + initialState[i, j++].GetRain())*directlyAdjacent + 4*initialState[i+1, j-1].GetRain()*diagonalPosition  ));
+							result[i, j].SetSnow((int)( initialState[i, j].GetSnow()*samePosition + 2*(initialState[i+1, j].GetSnow() + initialState[i, j++].GetSnow())*directlyAdjacent + 4*initialState[i+1, j-1].GetSnow()*diagonalPosition  ));
+							result[i, j].SetLightning((int)( initialState[i, j].GetLightning()*samePosition + 2*(initialState[i+1, j].GetLightning() + initialState[i, j++].GetLightning())*directlyAdjacent + 4*initialState[i+1, j-1].GetLightning()*diagonalPosition ));
+							////TODO: falta comprobar queno haya nieve y lluvia a la vez
+						}else{ //fila superior
+							result[i,j].SetClouds((int)( initialState[i,j].GetClouds()*samePosition + (2*initialState[i+1, j].GetClouds() + initialState[i, j+1].GetClouds() + initialState[i, j-1].GetClouds())*directlyAdjacent + 2*(initialState[i-1, j+1].GetClouds() + initialState[i+1, j-1].GetClouds())*diagonalPosition ));
+							result[i,j].SetRain((int)( initialState[i,j].GetRain()*samePosition + (2*initialState[i+1, j].GetRain() + initialState[i, j+1].GetRain() + initialState[i, j-1].GetRain())*directlyAdjacent + 2*(initialState[i-1, j+1].GetRain() + initialState[i+1, j-1].GetRain())*diagonalPosition ));
+							result[i,j].SetSnow((int)( initialState[i,j].GetSnow()*samePosition + (2*initialState[i+1, j].GetSnow() + initialState[i, j+1].GetSnow() + initialState[i, j-1].GetSnow())*directlyAdjacent + 2*(initialState[i-1, j+1].GetSnow() + initialState[i+1, j-1].GetSnow())*diagonalPosition ));
+							result[i,j].SetLightning((int)( initialState[i,j].GetLightning()*samePosition + (2*initialState[i+1, j].GetLightning() + initialState[i, j+1].GetLightning() + initialState[i, j-1].GetLightning())*directlyAdjacent + 2*(initialState[i-1, j+1].GetLightning() + initialState[i+1, j-1].GetLightning())*diagonalPosition ));
+							
+						}
+					}else if(i == size0){
+						if(j==0){ //esquina inf. izq
+					
+					//TODO: cambiar para hacer los calculos de cada una de las variables (nubes, lluvia, nieve, tormenta
+					//		result[i, j] = initialState[i, j]*samePosition + 2*(initialState[i-1, j] + initialState[i, j+1])*directlyAdjacent + 4*initialState[i-1, j+1]*diagonalPosition;
+						}else if(j == size1){ // esquina inf. derecha
+					
+					//TODO: cambiar para hacer los calculos de cada una de las variables (nubes, lluvia, nieve, tormenta
+					//		result[i, j] = initialState[i, j]*samePosition + 2*(initialState[i-1, j] + initialState[i, j-1])*directlyAdjacent + 4*initialState[i-1, j-1]*diagonalPosition;
+						}else{ //fila inferior
+					
+					//TODO: cambiar para hacer los calculos de cada una de las variables (nubes, lluvia, nieve, tormenta
+					//		result[i,j] = initialState[i,j]*samePosition + (2*initialState[i-1, j] + initialState[i, j+1] + initialState[i, j-1])*directlyAdjacent + 2*(initialState[i-1, j+1] + initialState[i-1, j-1])*diagonalPosition;
+						}
+					}else if(j==0){//columna borde izquierdo
+					
+					//TODO: cambiar para hacer los calculos de cada una de las variables (nubes, lluvia, nieve, tormenta
+					//	result[i, j] = initialState[i, j]* samePosition + (initialState[i+1, j] + initialState[i-1, j] + 2* initialState[i, j+1])*directlyAdjacent + 2*(initialState[i+1, j+1] + initialState[i-1, j+1])*diagonalPosition;
+					}else if(j == size1){//columna borde derecho
+					
+					//TODO: cambiar para hacer los calculos de cada una de las variables (nubes, lluvia, nieve, tormenta
+					//	result[i, j] = result[i, j] = initialState[i, j]* samePosition + (initialState[i+1, j] + initialState[i-1, j] + 2* initialState[i, j-1])*directlyAdjacent + 2*(initialState[i+1, j-1] + initialState[i-1, j-1])*diagonalPosition;
+					}else{ //celdas sin borde
+					
+					//TODO: cambiar para hacer los calculos de cada una de las variables (nubes, lluvia, nieve, tormenta
+					//	result[i,j] = initialState[i,j]*samePosition + (initialState[i-1, j] + initialState[i+1, j] + initialState[i, j-1] + initialState[i, j+1])*directlyAdjacent + (initialState[i-1, j-1] + initialState[i-1, j+1] + initialState[i+1, j-1] + initialState[i+1, j+1])*diagonalPosition;
+					}
 				}
 			}
             return result;

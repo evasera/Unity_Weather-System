@@ -151,7 +151,7 @@ namespace weatherSystem {
                     result = autumnEquinox_Sunrise.TimeWithSeconds(autumnEquinox_Sunrise, changeToAply);
 					}
 				if (result == null){
-					Debug.LogError("CentralClock: Date " + d.ToString() + "sunrise time could not be calculated");
+					Debug.LogError("CentralClock: Date " + d.ToString() + " sunrise time could not be calculated");
 					Debug.Break();
 				}
 				sunriseTimes.Add(d, result);

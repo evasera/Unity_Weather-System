@@ -152,24 +152,21 @@ namespace weatherSystem{
             }
             return 0;
         }
-         public bool Equals(object o){
-			Date other = o as Date;
-			if(other == null){
-				return false;
-			}else{
-                return this.CompareTo(other)==0;
-			}
-		}
 
-         public int GetHashCode() {
-            int result = day;
-            if (clock == null) setClock();
-            Month[] monthList = clock.getMonthList();
-            for (int i =0; i<month.Month_number-1; i++) {
-                result += monthList[i].Length;
-            }
-            return result;
+        public override bool Equals(object obj) {
+            var date = obj as Date;
+            return date != null &&
+                   day == date.day &&
+                   EqualityComparer<Month>.Default.Equals(month, date.month);
         }
+
+        public override int GetHashCode() {
+            var hashCode = 124811402;
+            hashCode = hashCode * -1521134295 + day.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<Month>.Default.GetHashCode(month);
+            return hashCode;
+        }
+
         public int DaysBetween(Date other) {
             int compareTo = this.CompareTo(other);
             if (compareTo > 0) return other.DaysBetween(this);

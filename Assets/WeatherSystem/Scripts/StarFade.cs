@@ -9,13 +9,13 @@ namespace weatherSystem {
         const int FADING_IN = 1;
         const int SHINING = 2;
         const int FADING_OUT = 3;
-		#endregion Constants
-		
-		#region Public Atributes[Tooltip("For testing purposes. If checked debug messages will be writen on the console")]
+        #endregion Constants
+
+        #region Public Atributes
 		[Tooltip("For testing purposes. If checked debug messages will be writen on the console")]
 		public bool debug;
 		[Tooltip("In game minutes the satrs will take to transition from transparent to fully visible, no matter the amount")]
-		public double minutesToFade = 15;
+		public double minutesToFade = 60;
 		#endregion Public Atributes
 		
 		#region Private Atributes
@@ -90,13 +90,17 @@ namespace weatherSystem {
                 Debug.LogError("STARFADE: GameObject " + this.name + "Needs a Renderer to make moonPhases visible"); 
                 Debug.Break();
             }
-			
-			opacityChangePerSecond = 1.0f/((float)minutesToFade * 60);
 
             rend = GetComponent<Renderer>();
             if(rend == null) {
                 Debug.LogError("STARFADE: GameObject containing the script needs a renderer");
             }
+
+            opacityChangePerSecond = 1.0f / ((float)minutesToFade * 60);
+            //if (debug) {
+            //    Debug.Log("OPACITY CHANGE PER SECOND: " + opacityChangePerSecond + "\n" + 
+            //            "CURRENT OPACITY: " + rend.material.color.a);
+            //}
         }
 		
 		
@@ -176,7 +180,7 @@ namespace weatherSystem {
 
             switch (phase){
 				case FADING_IN:
-					increase = currentTime.SecondsBetween(previousTime)*opacityChangePerSecond;
+					increase = previousTime.SecondsBetween(currentTime)*opacityChangePerSecond;
 					if(debug){
 						Debug.Log("STARFADE: phase is FADING_IN, currentTime is: " + currentTime.ToString() + "\n" + 
 								"\t fadeInStart: " + fadeInStart.ToString() + "\t sunset: " + sunset.ToString());
@@ -187,9 +191,9 @@ namespace weatherSystem {
 					completed = changeOpacity(increase);
                     if (completed){
 						if(debug){
-						Debug.Log("STARFADE: After the increase, it is determined that the transition has been completed \n" + 
+						    Debug.Log("STARFADE: After the increase, it is determined that the transition has been completed \n" + 
 								"\t opacity: " + rend.material.color.a);
-						Debug.Break();
+						    Debug.Break();
 						}
 						//TODO: por paranoia, comprobar que currentTime = sunset  o mayor. si es menor la he liado con los calculos 
 						if(currentTime.CompareTo(sunset)<0){
@@ -200,7 +204,7 @@ namespace weatherSystem {
 					}
 					break;
 				case FADING_OUT:
-					decrease = -(currentTime.SecondsBetween(previousTime)*opacityChangePerSecond);
+					decrease = -(previousTime.SecondsBetween(currentTime)*opacityChangePerSecond);
 					if(debug){
 						Debug.Log("STARFADE: phase is FADING_OUT, currentTime is: " + currentTime.ToString() + "\n" + 
 								"sunrise: " + sunrise.ToString() + "\t fadeOutEnd: " + fadeOutEnd.ToString());
@@ -225,7 +229,7 @@ namespace weatherSystem {
 				case FADED:
 					if(currentTime.CompareTo(fadeInStart)>=0){
 						phase = FADING_IN;
-						increase =currentTime.SecondsBetween(fadeInStart)*opacityChangePerSecond;
+						increase =fadeInStart.SecondsBetween(currentTime)*opacityChangePerSecond;
 						if(debug){
 							Debug.Log("STARFADE: while in phase FADED, fadeInStart has been reached \n" + 
 										"\t currentTime: "+ currentTime.ToString() + "\t fadeInStart: " + fadeInStart);
@@ -237,12 +241,17 @@ namespace weatherSystem {
 					break;
 				case SHINING:
 					
-					if (currentTime.CompareTo(sunrise)>=0 && currentTime.CompareTo(fadeInStart)<0){
+					if (currentTime.CompareTo(sunrise)>=0 && currentTime.CompareTo(fadeOutEnd)<0){
 						phase = FADING_OUT;
-						decrease = - currentTime.SecondsBetween(sunrise)*opacityChangePerSecond;
+                      
+                        decrease = 0;
+                        int secondsPased = sunrise.SecondsBetween(currentTime);
+						decrease = - secondsPased*opacityChangePerSecond;
 						if(debug){
 							Debug.Log("STARFADE: while in phase SHINING, sunrise has been reached \n" + 
 										"\t currentTime: "+ currentTime.ToString() + "\t sunrise: " + sunrise);
+                            Debug.Log("STARFADE: seconds pased: " + secondsPased  + " compare: " + sunrise.CompareTo(currentTime) + "\n" + 
+                                    "opacity change per second: " + opacityChangePerSecond);
 							Debug.Log("STARFADE: increase calculated: " + increase);
 							Debug.Break();
 						}

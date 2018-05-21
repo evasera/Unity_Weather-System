@@ -156,31 +156,31 @@ namespace weatherSystem {
                 daytime = false;
 			}
 			
-			////INCLINATION ANGLE CHANGE:
-			//float inclinationAngle;
-			//float hoursOfLight = startDaySunrise.SecondsBetween(startDaySunset)/3600.0f;
-			//if(hoursOfLight>= 12){
-			//	if(!sun){
-			//		double hoursOfDarkness = 24  - hoursOfLight;
-			//		inclinationAngle = (float)(hoursOfDarkness*90.0f/12.0 ) - previousInclinationAngle;
-			//	}else{
-			//		inclinationAngle = 0-previousInclinationAngle;
-			//	}
+			//INCLINATION ANGLE CHANGE:
+			float inclinationAngle;
+			float hoursOfLight = startDaySunrise.SecondsBetween(startDaySunset)/3600.0f;
+			if(hoursOfLight>= 12){
+				if(!sun){
+					double hoursOfDarkness = 24  - hoursOfLight;
+					inclinationAngle = (float)(hoursOfDarkness*90.0f/12.0 ) - previousInclinationAngle;
+				}else{
+					inclinationAngle = 0-previousInclinationAngle;
+				}
 
-			//}else{
-			//	if(sun){
-			//		inclinationAngle = (float)(hoursOfLight*90.0/12.0) - previousInclinationAngle;
-			//	} else{
-			//		double hoursOfDarkness = 24 - hoursOfLight;
-			//		if(hoursOfDarkness <12){
-			//			inclinationAngle = (float)(hoursOfDarkness*90.0/12.0) - previousInclinationAngle;
-			//		}else{
-			//			inclinationAngle = 0-previousInclinationAngle;
-			//		}
-			//	}
-			//}
-			//transform.RotateAround(Vector3.zero, Vector3.forward, inclinationAngle);
-			//previousInclinationAngle = inclinationAngle;
+			}else{
+				if(sun){
+					inclinationAngle = (float)(hoursOfLight*90.0/12.0) - previousInclinationAngle;
+				} else{
+					double hoursOfDarkness = 24 - hoursOfLight;
+					if(hoursOfDarkness <12){
+						inclinationAngle = (float)(hoursOfDarkness*90.0/12.0) - previousInclinationAngle;
+					}else{
+						inclinationAngle = 0-previousInclinationAngle;
+					}
+				}
+			}
+			transform.RotateAround(Vector3.zero, Vector3.forward, inclinationAngle);
+			previousInclinationAngle = inclinationAngle;
 			
 			
 			previousTime = currentTime.Clone();
@@ -193,56 +193,56 @@ namespace weatherSystem {
 			Time midday = clock.GetMiddayTime();
 			
 			
-			////INCLINATION ANGLE CHANGE:
-			//if(sun && currentTime.CompareTo(previousTime)<0){ //it is midnight
-			//	if(debug){
-			//		Debug.Log("SUN/MOON ROTATION" + this.name + " is a sun and it is aproximately midnight, therefore te inclination angle is going to change \n" + 
-			//				"currentTime: " + currentTime.ToString());
-			//		Debug.Break();
-			//	}
-			//	float inclinationAngle;
-			//	float hoursOfLight = sunrise.SecondsBetween(sunset)/3600.0f;
-			//	if(hoursOfLight < 12){
-			//		inclinationAngle = (float)(hoursOfLight*90.0/12.0) - previousInclinationAngle;
-			//		if(debug){
-			//			Debug.Log("SUN/MOON ROTATION" + this.name + ": new day sunrise: " + sunrise + "\t new day sunset: " + sunset + "\n" +
-			//				"calculated hours of ligh: " + hoursOfLight + "\t calculated angle change: " + inclinationAngle);
-			//			Debug.Break();
-			//		}
-			//	}else{
-			//		inclinationAngle = 0-previousInclinationAngle;
-			//		if(debug){
-			//			Debug.Log("SUN/MOON ROTATION" + this.name + ": new day sunrise: " + sunrise + "\t new day sunset: " + sunset + "\n" +
-			//				"calculated hours of ligh: " + hoursOfLight + "\t calculated angle change: " + inclinationAngle);
-			//			Debug.Break();
-			//		}
-			//	}
-			//	transform.RotateAround(Vector3.zero, Vector3.forward, inclinationAngle);
-			//	previousInclinationAngle = inclinationAngle;
-			//	if(debug){
-			//		Debug.Break();
-			//	}
-			//}else if(!sun && currentTime.CompareTo(midday)>=0 && currentTime.CompareTo(midday)<0){
-			//	if(debug){
-			//		Debug.Log("SUN/MOON ROTATION" + this.name + " is a moon and it is aproximately midday, therefore te inclination angle is going to change \n" + 
-			//				"currentTime: " + currentTime.ToString());
-			//		Debug.Break();
-			//	}
-			//	double hoursOfDarkness = 24  - (sunrise.SecondsBetween(sunset)/3600.0f);
-			//	double hoursOfDarknessB = sunset.SecondsBetween(clock.getNextSunriseTime());
-			//	Debug.Log("COMPROBANDO TEORIA: " + (hoursOfDarkness == hoursOfDarknessB));
-			//	float inclinationAngle = (float)(hoursOfDarkness*90.0f/12.0 ) - previousInclinationAngle;
-			//	if(debug){
-			//		Debug.Log("SUN/MOON ROTATION" + this.name + ": sunset: " + sunset + "\t next sunrise: "+ clock.getNextSunriseTime() + "\n" +
-			//				"calculated hours of darkness: " + hoursOfDarkness + "\t calculated angle change: " + inclinationAngle);
-			//		Debug.Break();
-			//	}
-			//	transform.RotateAround(Vector3.zero, Vector3.forward, inclinationAngle);
-			//	previousInclinationAngle = inclinationAngle;
-			//	if(debug){
-			//		Debug.Break();
-			//	}
-			//}				
+			//INCLINATION ANGLE CHANGE:
+			if(sun && currentTime.CompareTo(previousTime)<0){ //it is midnight
+				if(debug){
+					Debug.Log("SUN/MOON ROTATION" + this.name + " is a sun and it is aproximately midnight, therefore te inclination angle is going to change \n" + 
+							"currentTime: " + currentTime.ToString());
+					Debug.Break();
+				}
+				float inclinationAngle;
+				float hoursOfLight = sunrise.SecondsBetween(sunset)/3600.0f;
+				if(hoursOfLight < 12){
+					inclinationAngle = (float)(hoursOfLight*90.0/12.0) - previousInclinationAngle;
+					if(debug){
+						Debug.Log("SUN/MOON ROTATION" + this.name + ": new day sunrise: " + sunrise + "\t new day sunset: " + sunset + "\n" +
+							"calculated hours of ligh: " + hoursOfLight + "\t calculated angle change: " + inclinationAngle);
+						Debug.Break();
+					}
+				}else{
+					inclinationAngle = 0-previousInclinationAngle;
+					if(debug){
+						Debug.Log("SUN/MOON ROTATION" + this.name + ": new day sunrise: " + sunrise + "\t new day sunset: " + sunset + "\n" +
+							"calculated hours of ligh: " + hoursOfLight + "\t calculated angle change: " + inclinationAngle);
+						Debug.Break();
+					}
+				}
+				transform.RotateAround(Vector3.zero, Vector3.forward, inclinationAngle);
+				previousInclinationAngle = inclinationAngle;
+				if(debug){
+					Debug.Break();
+				}
+			}else if(!sun && currentTime.CompareTo(midday)>=0 && currentTime.CompareTo(midday)<0){
+				if(debug){
+					Debug.Log("SUN/MOON ROTATION" + this.name + " is a moon and it is aproximately midday, therefore te inclination angle is going to change \n" + 
+							"currentTime: " + currentTime.ToString());
+					Debug.Break();
+				}
+				double hoursOfDarkness = 24  - (sunrise.SecondsBetween(sunset)/3600.0f);
+				double hoursOfDarknessB = sunset.SecondsBetween(clock.getNextSunriseTime());
+				Debug.Log("COMPROBANDO TEORIA: " + (hoursOfDarkness == hoursOfDarknessB));
+				float inclinationAngle = (float)(hoursOfDarkness*90.0f/12.0 ) - previousInclinationAngle;
+				if(debug){
+					Debug.Log("SUN/MOON ROTATION" + this.name + ": sunset: " + sunset + "\t next sunrise: "+ clock.getNextSunriseTime() + "\n" +
+							"calculated hours of darkness: " + hoursOfDarkness + "\t calculated angle change: " + inclinationAngle);
+					Debug.Break();
+				}
+				transform.RotateAround(Vector3.zero, Vector3.forward, inclinationAngle);
+				previousInclinationAngle = inclinationAngle;
+				if(debug){
+					Debug.Break();
+				}
+			}				
 			
 			//SUN AND MOON ROTATION AROUND THE TERRAIN
 			//check if sunset has been reached		

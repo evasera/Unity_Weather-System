@@ -14,10 +14,14 @@ namespace weatherSystem {
 		public float biome_influence;
 		
 		[Header ("Map settings:")]
+		[Tooltip("coordinates of one corner of the map, it has to be diagonal to the end position")]
 		public Vector3 originPosition;
+		[Tooltip("coordinates of one corner of the map, it has to be diagonal to the origin position")]
 		public Vector3 endPosition;
-		public int chunkSize;
-		public Biome[,] biomeDistribution;
+		[Tooltip("number of chunks you want the map to have along the X axis")]
+		public int numberOfChunksX;
+		[Tooltip("number of chunks you want the map to have along the Z axis")]
+		public int numberOfChunksZ;
 		
 		[Header ("softening settings:")]
 		public double samePosition = 0.4;
@@ -34,9 +38,7 @@ namespace weatherSystem {
         public ParticleSystem snowSystem;
         public ParticleSystem lightningSystem;
         //TODO: falta visualizacion de las nubes
-
 		#endregion public Atributes
-		
 		
         #region private Atributes
         private CentralClock clock;
@@ -45,9 +47,13 @@ namespace weatherSystem {
 		private WeatherState [,] currentState;
 		private WeatherState [,] nextState;
 		private WeatherState [,] previousState;
+		
+		private float chunkSizeX;
+		private float chunkSizeZ;
+		
         #endregion private Atributes 
 
-		private WeatherState[,] GetNextState(){
+		/* private WeatherState[,] GetNextState(){
             WeatherState[,] result = new WeatherState[currentState.GetLength(0), currentState.GetLength(1)]; 
 			int seasonIndex = currentSeason.GetIndex(); //it is common for all the map
 			for(int i = 0; i<result.GetLength(0); i++){
@@ -123,9 +129,9 @@ namespace weatherSystem {
 			//Softening phase, to avoid drastic changes in the weather.
 			result = Softening(result);
             return result;
-		}
+		} */
 		
-		public WeatherState[,] Softening (WeatherState[,] initialState){
+		/* public WeatherState[,] Softening (WeatherState[,] initialState){
             int size0 = initialState.GetLength(0);
 			int size1 = initialState.GetLength(1);
 			WeatherState[,] result = new WeatherState[size0, size1];
@@ -181,18 +187,18 @@ namespace weatherSystem {
 				}
 			}
             return result;
-		}
+		} */
  
-        public static float GenerateNormalRandom(float mu, float sigma) {
+       /*  public static float GenerateNormalRandom(float mu, float sigma) {
             float rand1 = Random.Range(0.0f, 1.0f);
             float rand2 = Random.Range(0.0f, 1.0f);
 
             float n = Mathf.Sqrt(-2.0f * Mathf.Log(rand1)) * Mathf.Cos((2.0f * Mathf.PI) * rand2);
 
             return (mu + sigma * n);
-        }
+        } */
 
-        public override string ToString() {
+        /* public override string ToString() {
             string result = "SEASON: " + currentSeason.name + "\n";
             int seasonIndex = currentSeason.GetIndex(); //it is common for all the map
             for (int i = 0; i < currentState.GetLength(0); i++) {
@@ -203,26 +209,38 @@ namespace weatherSystem {
                 }
             }
             return result;
-        }
+        } */
 
+		
+		
         void Awake() {
             clock = GameObject.FindGameObjectWithTag("Clock").GetComponent<CentralClock>();
+			if (clock == null) {
+                Debug.LogError("WEATHERCONTROLLER: No clock could be found, please remember to tag the object with the CentralClock script with the tag 'Clock' ");
+                Debug.Break();
+            }
+			
+			//TODO: comprobar que solo hay 1 objeto con tag "WeatherController";
+			int numberOfControllers = GameObject.FindGameObjectsWithTag("WeatherController").Length;
+			if(numberOfControllers <1){
+				Debug.LogError("WEATHERCONTROLLER: the GameObject containing the WeatherController script needs to be taged as 'WeatherController'");
+			}
+			if(numberOfControllers >1){
+				Debug.LogError("WEATHERCONTROLLER: multiple GameObjects found with the tag 'WeatherController', there should be only one"); 
+			}
 			
 			//checking softening values
 			if((samePosition + directlyAdjacent*4 + diagonalPosition*4)!= 1){
 				Debug.LogError("WEATHERCONTROLLER: There is an error with the softening values, please revise it \n" + 
 								"samePosition + directlyAdjacent*4 + diagonalPosition*4 is not 1");
 			}
+			
+			//checking state multipliers
 			if(previous_state_influence + biome_influence != 1){
 				Debug.LogError("WEATHERCONTROLLER: There is an error with the simulation parameters, previous_state_influence and biome_influence need to sum 1"); //TODO: esta frase esta bien escrita???
 			}
 			
-			
-            if (clock == null) {
-                Debug.LogError("WEATHERCONTROLLER: No clock could be found, please remember to tag the object with the CentralClock script with the tag 'Clock' ");
-                Debug.Break();
-            }
-            
+			//checking ParticleSystems
             if(rainSystem == null) {
                 Debug.LogError("WEATHERCONTROLLER: rain system reference can not be null");
             }
@@ -232,6 +250,44 @@ namespace weatherSystem {
             if (lightningSystem == null) {
                 Debug.LogError("WEATHERCONTROLLER: lighning system reference can not be null");
             }
+			
+			//checking the map
+			if(originPosition == null){
+				Debug.LogError("WEATHERCONTROLLER: Origin Position is a mandatory parameter");
+			}
+			if(endPosition == null){
+				Debug.LogError("WEATHERCONTROLLER: End Position is a mandatory parameter");
+			}
+			if(originPosition == endPosition){
+				Debug.LogError("WEATHERCONTROLLER: origin and end positions can not be equal");
+			}else if(originPosition.x == endPosition.x){
+				Debug.LogError("WEATHERCONTROLLER: origin and end positions have the same x value, this means that the map has no width");
+			}else if(originPosition.z == endPosition.z){
+				Debug.LogError("WEATHERCONTROLLER: origin and end positions have the same z value, this means that the map has no depth");
+			}
+			
+			float mapWidth = Mathf.Abs(originPosition.x - endPosition.x); //TODO: esta linea es al valor absoluto, buscar cual es la funcion para unity
+			float mapDepth = Mathf.Abs(originPosition.z - endPosition.z); //TODO: lo mismo que lo de arriba
+			
+			chunkSizeX = mapWidth/numberOfChunksX;
+			chunkSizeZ = mapDepth/numberOfChunksZ;
+			//paranoia checup
+			if(chunkSizeX <= 0){
+				Debug.LogError("WEATHERCONTROLLER: chunk Size in X is negative. There seems to have been a mistake in the code, please contact the developer.");
+			}
+			if(chunkSizeX <= 0){
+				Debug.LogError("WEATHERCONTROLLER: chunk Size in Z is negative. There seems to have been a mistake in the code, please contact the developer.");
+			}
+			if(chunkSizeX < 5){
+				Debug.LogWarning("WEATHERCONTROLLER: the calculated chunk Size in X calculated to be " + chunkSizeX + ", this will make the system slower. please consider reducing the number of chunks in the X axis");
+			}
+			if(chunkSizeZ < 5){
+				Debug.LogWarning("WEATHERCONTROLLER: the calculated chunk Size in Z calculated to be " + chunkSizeZ + ", this will make the system slower. please consider reducing the number of chunks in the Z axis");
+			}
+			if(debug){
+				Debug.Log("WEATHERCONTROLLER:  Calculated chunk size:	X:" + chunkSizeX + "	Z:" + chunkSizeZ);
+			}
+			//TODO: comprobar que el numero de chunks en x coincide con el numero de columnas de biomeDistribution y el numero de chunks en y coincide con el numero de filas
 			
 			//currentState = new WeatherState[,];
 		}

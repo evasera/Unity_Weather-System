@@ -18,9 +18,8 @@ namespace weatherSystem {
         [Header ("Calendar settings:")]
         public double Day_length_in_minutes;
         public int Number_of_seasons;
-
         public int Days_in_Year;
-        public string[] Day_names;
+        public string[] Day_names; //De momento esto no se esta utilizando para nada, se deberia incluir en el objeto Date???
 
         [Header ("Day length settings")]
         public string summer_solstice_date = "dd/mm/yyyy";
@@ -151,7 +150,7 @@ namespace weatherSystem {
                     result = autumnEquinox_Sunrise.TimeWithSeconds(autumnEquinox_Sunrise, changeToAply);
 					}
 				if (result == null){
-					Debug.LogError("CentralClock: Date " + d.ToString() + " sunrise time could not be calculated");
+					Debug.LogError("CentralClock: Date " + d.ToString() + "sunrise time could not be calculated");
 					Debug.Break();
 				}
 				sunriseTimes.Add(d, result);
@@ -256,6 +255,8 @@ namespace weatherSystem {
        
 		//Parameter checkup and initialization
         void Awake(){
+			//TODO: comprobar que no hay mas de 1 solo objecto con tag "Clock"
+			
             //initializing SunriseAndSunsetCollection
             sunriseTimes = new Dictionary<Date, Time>();
 			sunsetTimes = new Dictionary<Date, Time>();

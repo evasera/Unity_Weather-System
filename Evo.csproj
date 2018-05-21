@@ -288,6 +288,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Imported\HolyShift\Scripts\CheckForStandardAssets.cs" />
     <Compile Include="Assets\WeatherSystem\Scripts\Biome.cs" />
     <Compile Include="Assets\WeatherSystem\Scripts\CentralClock.cs" />
     <Compile Include="Assets\WeatherSystem\Scripts\Date.cs" />
@@ -303,6 +304,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Creditos.txt" />
+    <None Include="Assets\Imported\HolyShift\Shaders\FXWaterLowpoly.shader" />
+    <None Include="Assets\Imported\HolyShift\Shaders\WaterInclude.cginc" />
+    <None Include="Assets\Imported\HolyShift\readme.txt" />
     <None Include="Assets\Standard Assets\Characters\FirstPersonCharacter\FirstPersonCharacterGuidelines.txt" />
     <None Include="Assets\Standard Assets\Characters\RollerBall\RollerBallGuidelines.txt" />
     <None Include="Assets\Standard Assets\Characters\ThirdPersonCharacter\ThirdPersonCharacterGuidelines.txt" />
@@ -325,6 +329,9 @@
     <None Include="Assets\Standard Assets\Environment\Water\Water4\Shaders\WaterInclude.cginc" />
     <None Include="Assets\Standard Assets\Fonts\OpenSans\License!.txt" />
     <None Include="Assets\Standard Assets\Prototyping\Shaders\WorldCoordDiffuse.shader" />
+    <None Include="Assets\WeatherSystem\Biome Configuration\BiomeConfigutationExample.txt" />
+    <None Include="Assets\WeatherSystem\Biome Configuration\Forest.txt" />
+    <None Include="Assets\WeatherSystem\Biome Configuration\Notas para implementacion.txt" />
     <None Include="Assets\WeatherSystem\climateExample 1.txt" />
     <None Include="Assets\WeatherSystem\climateExample.txt" />
   </ItemGroup>

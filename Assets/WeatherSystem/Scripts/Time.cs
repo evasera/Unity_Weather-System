@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace weatherSystem{
     public class Time : System.IComparable {
-        public int hours; //TODO: estos atributos se han hecho publicos para una prueba, pero deberian ser privados, como se que se me va a olvidar me dejo la nota
-        public int minutes;
-        public int seconds;
+        private int hours;
+        private int minutes;
+        private int seconds;
 
 		#region Constructors:
         public Time(int hours, int minutes, int seconds){
@@ -87,13 +87,12 @@ namespace weatherSystem{
             }
             int compare = CompareTo(other);
             if (compare == 0) return 0;
-            if (compare > 0) return (24 * 3600) - other.SecondsBetween(this);
-            else {
-                int result = 0;
-                result = (other.seconds - seconds) + (other.minutes - minutes) * 60 + (other.hours - hours) * 3600;
-                
-                return result;
-            }
+            if (compare > 0) return (24*3600) - other.SecondsBetween(this);
+            // ahora que sabemos que es menor:
+            int result = 0;
+
+            result = (other.seconds - seconds) + (other.minutes - minutes) * 60 + (other.hours - hours) * 3600;
+            return result;
         }
     }
 }

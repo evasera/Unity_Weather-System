@@ -1,0 +1,27 @@
+notes:
+-anything avobe the line "SIZE:" will be ignored
+-there must be an empty line before section names(SIZE, PROBABILITIES, INTENSITIES)
+-It is essential that the Season namees en this file are exacly the same as the names of the GameObject containing the script Season with the appropiate configuration.
+-for this example we are using the 4 seasons most commonly used in the real world, but it could be different in your game.
+-probabilities and intensities need to be matrices of the same siza. matching the described in SIZE
+-size is defined as number of rows, number of columns
+
+-the probabilities will be doubles in the range [0, 1]
+-the intensities will be integers in the range [0, 10]
+
+SIZE:
+4,4
+
+PROBABILITIES:
+Season, Cloud probability, Rain Probability, Lightning probability, Snow Probability
+Winter, 1.0, 0.0, 0.0, 0.0
+Spring, 1.0, 0.0, 0.0, 0.0
+Summer, 1.0, 0.0, 0.0, 0.0
+Autumn, 1.0, 0.0, 0.0, 0.0
+
+INTENSITIES:
+Season, Cloud probability, Rain Probability, Lightning probability, Snow Probability
+Winter, 0, 0, 0, 0
+Spring, 0, 0, 0, 0
+Summer, 0, 0, 0, 0
+Autumn, 0, 0, 0, 0

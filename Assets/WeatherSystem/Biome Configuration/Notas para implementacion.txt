@@ -1,0 +1,25 @@
+para la visualizacion de las distintas condiciones climaticas:
+hacer una interfaz o posiblemete clase obstracta que tenga los metodos que queremos, cualquier control de visualizacion debe cumplir con esos metodos. Ademas para la demo y patra la presentacion crear una implementacion basada en sistemas de particulas y otra por determinar para las nubes.
+--todos los sistemas tienen
+	metodo: updateValue(int value)
+weatherController llamará al metoso updateValue padandole el nuevo valor de intensidad. es responsabilidad de la implementacion como se quiera gestionar esto.
+--particleSystemController
+	param: transitionTime
+		//timepo para realizar la transicion de una intensidad a otra. Se ha de comprobar que no es mayor o igual que
+		  la frequencia de actualizacion de weatherController
+	
+	por cada posible valor de intensidad: recibir como parametro los valores para el sistema de particulas para esa intensidad.
+	
+
+
+
+
+como se introduce la definicion de biomas?? sabemos que son matrices, pero como las especifica el ususario? idealmente me gustaria que cada tipo de bioma fuese un GameObject con Tag Biome. el script Biome recibe un fichero de texto con las matrices de configuracion (es posible hacer que sean 2 ficheros, uno por cada matriz). Se puede considerar la posibilidad de incluir la definicion del bioma no en un txt sino en ficheros xml o sumilares si facilitasen el trabajo.
+
+
+Tareas extras para cuando se acabe el clima:
+-efectos de sonido para la demo
+-cambios visuales con estacion
+-implementar el tp a desierto
+-añadir interfaz grafica para poder ver los valores exactos del clima en un momento dado
+-persistencia del clima (el controlador tendrá un campo para fichero con el ultimo estado, asi cuando se calcula no se hace a partir de 0 sino del estado ya guardado)

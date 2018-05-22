@@ -3,10 +3,10 @@ SIZE:
 
 PROBABILITIES:
 Season, Cloud probability, Rain Probability, Lightning probability, Snow Probability
-Winter, 1, 0.2, 0.05, 0.6
-Spring, 1, 0.7, 0.4, 0.1
-Summer, 1, 0.2, 0.8, 0.0
-Autumn, 1, 0.7, 0.5, 0.2
+Winter, 100, 20, 5, 60
+Spring, 100, 70, 40, 10
+Summer, 100, 20, 80, 0
+Autumn, 100, 70, 50, 20
 
 INTENSITIES:
 Season, Cloud intensity, Rain intensity, Lightning intensity, Snow intensity

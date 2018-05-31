@@ -13,21 +13,6 @@ namespace weatherSystem {
 		public float previous_state_influence;
 		public float biome_influence;
 		
-		[Header ("Map settings:")]
-		[Tooltip("coordinates of one corner of the map, it has to be diagonal to the end position")]
-		public Vector3 originPosition;
-		[Tooltip("coordinates of one corner of the map, it has to be diagonal to the origin position")]
-		public Vector3 endPosition;
-		[Tooltip("number of chunks you want the map to have along the X axis")]
-		public int numberOfChunksX;
-		[Tooltip("number of chunks you want the map to have along the Z axis")]
-		public int numberOfChunksZ;
-		
-		[Header ("softening settings:")]
-		public double samePosition = 0.4;
-		public double directlyAdjacent = 0.1;
-		public double diagonalPosition= 0.05;
-		
 		[Header ("Random Generation Values:")]
 		public float probability_stdDev;
         public float intensity_stdDev;
@@ -44,195 +29,141 @@ namespace weatherSystem {
         private CentralClock clock;
         private Time lastUpdate;
 		private Season currentSeason;
-		private WeatherState [,] currentState;
-		private WeatherState [,] nextState;
-		private WeatherState [,] previousState;
-		
-		private float chunkSizeX;
-		private float chunkSizeZ;
-		
+		private WeatherState currentState;
+		private WeatherState previousState;
+        public Biome biome; //TODO: cambiar esto en el futuro
+
         #endregion private Atributes 
 
-		/* private WeatherState[,] GetNextState(){
-            WeatherState[,] result = new WeatherState[currentState.GetLength(0), currentState.GetLength(1)]; 
-			int seasonIndex = currentSeason.GetIndex(); //it is common for all the map
-			for(int i = 0; i<result.GetLength(0); i++){
-				for(int j = 0; j<result.GetLength(1); j++){
-					Biome biome = biomeDistribution[i,j];
-					WeatherState previous = currentState[i, j];
-					WeatherState current = new WeatherState(0,0,0,0,0);
-					
-					//TODO: ¿añadir la intensidad de las nubes a los calculos de probabilidad de la simulacion? (lluvia, nieve, etcetera etcetera )
-					
-					//New State cloud calculations
-					//The probability of some clouds is 100%, so no probability calculated for clouds
-					int cloudIntensity = (int) (previous.GetClouds()*previous_state_influence + biome.GetIntensity(Biome.CLOUDS, seasonIndex)*biome_influence + GenerateNormalRandom(0, intensity_stdDev));
-					cloudIntensity = Mathf.Min(10, Mathf.Max(0, cloudIntensity));
-					
-					
-					//New State Rain calculations
-					//probability:
-					float rainProbability = (float) ((previous.GetRain()/10.0)*previous_state_influence + biome.GetProbability(Biome.RAIN, seasonIndex)*biome_influence + GenerateNormalRandom(0, probability_stdDev));
-                    rainProbability = Mathf.Max(0, Mathf.Min(1, rainProbability));
-                    //intensity
-                    int rainIntensity = 0;
+		private WeatherState GetNextState(WeatherState currentState) {
+            if(currentSeason == null) {
+                Debug.LogError("WEATHERCONTROLLER: Current Season is set to null set to null");
+                Debug.Break();
+            }
 
-                    if (Random.value > rainProbability){
-						rainIntensity = (int)(previous.GetRain()*previous_state_influence + biome.GetIntensity(Biome.RAIN, seasonIndex)*biome_influence);
-						rainIntensity+= (int) GenerateNormalRandom(0, intensity_stdDev);
-						// the rain intensity is at most as big as the clouds allow
-						rainIntensity = Mathf.Min(cloudIntensity, Mathf.Max(0, rainIntensity)); 
-						
-					}					
-					//New State Snow calculations
-					//probability:
-					float snowProbability = (float)((previous.GetSnow()/10.0)*previous_state_influence + biome.GetProbability(Biome.SNOW, seasonIndex)*biome_influence + GenerateNormalRandom(0, probability_stdDev));
-					snowProbability = Mathf.Max(0, Mathf.Min(1, snowProbability));
-                    //intensity
-                    int snowIntensity = 0;
-                    if (Random.value > snowProbability){
-						snowIntensity = (int) (previous.GetSnow()*previous_state_influence + biome.GetIntensity(Biome.SNOW, seasonIndex)*biome_influence + GenerateNormalRandom(0, intensity_stdDev));
-						// the snow intensity is at most as big as the clouds allow
-						snowIntensity = Mathf.Min(cloudIntensity, Mathf.Max(0, snowIntensity)); 
-						
-					}
-					//coherence test, no rain and snow at the same time:
-					if(rainIntensity > 0 && snowIntensity >0){
-						if(rainProbability>snowProbability){
-							snowIntensity = 0;
-						}else{
-							rainIntensity = 0;
-						}
-					}
-					
-					//New State storm calculations
-					int stormIntensity = 0;
-					if(rainIntensity>=5){
-						//probability
-						float stormProbability = (float) (((previous.GetLightning()/10.0)*0.4 + (rainIntensity/10)*0.6 )* previous_state_influence + biome.GetProbability(Biome.LIGHTNING, seasonIndex)*biome_influence + GenerateNormalRandom(0.0f, probability_stdDev));
-						stormProbability = Mathf.Max(0, Mathf.Min (1, rainIntensity));
-						
-						if(Random.value>stormProbability){
-							stormIntensity = (int) (previous.GetLightning()*previous_state_influence + biome.GetIntensity(Biome.LIGHTNING, seasonIndex)*biome_influence + GenerateNormalRandom(0.0f, intensity_stdDev));
-							stormIntensity = Mathf.Min(rainIntensity, Mathf.Max (0, stormIntensity));
-						}
-					}					
-					
-					current.SetClouds(cloudIntensity);
-					current.SetRain(rainIntensity);
-					current.SetSnow(snowIntensity);
-					current.SetLightning(stormIntensity);
-					
-					result[i,j] = current;
-				}
-			}
-			//Softening phase, to avoid drastic changes in the weather.
-			result = Softening(result);
+            if (debug) {
+                Debug.Log("WEATHERCONTROLLER: Calculating the next state.... \n" +
+                    "Current state: " + currentState.ToString() + "\n" + 
+                    "current season: " + currentSeason);
+            }
+            //calculating the clouds:
+            double cloudProbability = biome.GetProbability(currentSeason, Biome.CLOUDS)*biome_influence + currentState.GetClouds()/10.0*previous_state_influence + GenerateNormalRandom(0, probability_stdDev) ;
+            if (debug) {
+                Debug.Log("Cloud Calculations.... ");
+                Debug.Log("Probability calculated: " + cloudProbability);
+                Debug.Break();
+            }
+            int cloudIntensity = 0;
+            if (cloudProbability>= Random.Range(0, 1)) {
+                cloudIntensity = (int) (Mathf.Max(Mathf.Min( (biome.GetIntensity(currentSeason, Biome.CLOUDS)*biome_influence + currentState.GetClouds()*previous_state_influence + GenerateNormalRandom(0, intensity_stdDev)), 10), 0));
+                if (debug) {
+                    Debug.Log("Intensity calculated: " + cloudIntensity);
+                    Debug.Break();
+                }
+            }else if (debug) {
+                Debug.Log("The probability was lower than the roll, therefore intensity is set to 0");
+            }
+            
+            //calculating rain:
+            double rainProbability = biome.GetProbability(currentSeason, Biome.RAIN) * biome_influence + currentState.GetRain()/10 * previous_state_influence + GenerateNormalRandom(0, probability_stdDev);
+            if (debug) {
+                Debug.Log("Rain Calculations.... ");
+                Debug.Log("Probability calculated: " + rainProbability);
+                Debug.Break();
+            }
+            int rainIntensity = 0;
+            if (rainProbability >= Random.Range(0, 1)) {
+                rainIntensity = (int)(Mathf.Max(Mathf.Min((biome.GetIntensity(currentSeason, Biome.RAIN) * biome_influence + ( cloudIntensity*0.2f + currentState.GetRain()*0.8f  )* previous_state_influence + GenerateNormalRandom(0, intensity_stdDev)), cloudIntensity), 0));
+                if (debug) {
+                    Debug.Log("Intensity calculated: " + rainIntensity);
+                    Debug.Break();
+                }
+            }
+
+            //calculating snow
+            double snowProbability = biome.GetProbability(currentSeason, Biome.SNOW) * biome_influence + currentState.GetSnow() / 10.0 * previous_state_influence + GenerateNormalRandom(0, probability_stdDev);
+            if (debug) {
+                Debug.Log("Snow Calculations.... ");
+                Debug.Log("Probability calculated: " + snowProbability);
+                Debug.Break();
+            }
+            int snowIntensity = 0;
+            if (snowProbability >= Random.Range(0, 1)) {
+                snowIntensity = (int)(Mathf.Max(Mathf.Min((biome.GetIntensity(currentSeason, Biome.SNOW) * biome_influence + (cloudIntensity*0.2f + currentState.GetSnow()*0.8f)* previous_state_influence + GenerateNormalRandom(0, intensity_stdDev)), cloudIntensity), 0));
+                if (debug) {
+                    Debug.Log("Intensity calculated: " + snowIntensity);
+                    Debug.Break();
+                }
+            }
+            //coherency test: no rain and snow at the same time
+            if (rainIntensity>0 && snowIntensity > 0) {
+                if (debug) {
+                    Debug.Log("snow and rain detected at the same time, the one with the lowest probability will be set to 0");
+                }
+                if (rainProbability >= snowProbability) {
+                    snowIntensity = 0;
+                    if (debug) {
+                        Debug.Log("rain has higher probabilities than snow, therfore snow intensity has been set to 0"); //TODO: revisar esta frase
+                    }
+                } else {
+                    rainIntensity = 0;
+                    if (debug) {
+                        Debug.Log("snow has higher probabilities than rain, therfore rain intensity has been set to 0");
+                    }
+                }
+            }
+
+            //storm calculations
+            double LightningProbability = biome.GetProbability(currentSeason, Biome.SNOW) * biome_influence + currentState.GetLightning() / 10.0 * previous_state_influence + GenerateNormalRandom(0, probability_stdDev);
+            if (debug) {
+                Debug.Log("Lightning Calculations.... ");
+                Debug.Log("Probability calculated: " + LightningProbability);
+                Debug.Break();
+            }
+            int LightningIntensity = 0;
+            if (LightningProbability >= Random.Range(0, 1)) {
+                LightningIntensity = (int)(Mathf.Max(Mathf.Min((biome.GetIntensity(currentSeason, Biome.SNOW) * biome_influence + (cloudIntensity * 0.2f +currentState.GetLightning()*0.8f )* previous_state_influence + GenerateNormalRandom(0, intensity_stdDev)), rainIntensity), 0));
+                if (debug) {
+                    Debug.Log("Intensity calculated: " + LightningIntensity);
+                    Debug.Break();
+                }
+            }
+
+            WeatherState result = new WeatherState(cloudIntensity, rainIntensity, LightningIntensity, snowIntensity);
+
             return result;
-		} */
-		
-		/* public WeatherState[,] Softening (WeatherState[,] initialState){
-            int size0 = initialState.GetLength(0);
-			int size1 = initialState.GetLength(1);
-			WeatherState[,] result = new WeatherState[size0, size1];
-			for(int i= 0; i<size0; i++){
-				for(int j= 0; j<size1; j++){
-					if(i == 0){
-						if(j==0){ //esquina sup.izq
-							result[i,j].SetClouds((int)( initialState[i, j].GetClouds()*samePosition + 2*(initialState[i+1, j].GetClouds() + initialState[i, j+1].GetClouds())*directlyAdjacent + 4*initialState[i+1, j+1].GetClouds()*diagonalPosition));
-							result[i,j].SetRain((int)( initialState[i, j].GetRain()*samePosition + 2*(initialState[i+1, j].GetRain() + initialState[i, j+1].GetRain())*directlyAdjacent + 4*initialState[i+1, j+1].GetRain()*diagonalPosition));
-							result[i,j].SetSnow((int)( initialState[i, j].GetSnow()*samePosition + 2*(initialState[i+1, j].GetSnow() + initialState[i, j+1].GetSnow())*directlyAdjacent + 4*initialState[i+1, j+1].GetSnow()*diagonalPosition));
-							result[i,j].SetLightning((int)( initialState[i, j].GetLightning()*samePosition + 2*(initialState[i+1, j].GetLightning() + initialState[i, j+1].GetLightning())*directlyAdjacent + 4*initialState[i+1, j+1].GetLightning()*diagonalPosition));
-							//TODO: falta comprobar queno haya nieve y lluvia a la vez
-						}else if(j == size1){ // esquina sup derecha
-							result[i, j].SetClouds((int)( initialState[i, j].GetClouds()*samePosition + 2*(initialState[i+1, j].GetClouds() + initialState[i, j++].GetClouds())*directlyAdjacent + 4*initialState[i+1, j-1].GetClouds()*diagonalPosition  ));
-							result[i, j].SetRain((int)( initialState[i, j].GetRain()*samePosition + 2*(initialState[i+1, j].GetRain() + initialState[i, j++].GetRain())*directlyAdjacent + 4*initialState[i+1, j-1].GetRain()*diagonalPosition  ));
-							result[i, j].SetSnow((int)( initialState[i, j].GetSnow()*samePosition + 2*(initialState[i+1, j].GetSnow() + initialState[i, j++].GetSnow())*directlyAdjacent + 4*initialState[i+1, j-1].GetSnow()*diagonalPosition  ));
-							result[i, j].SetLightning((int)( initialState[i, j].GetLightning()*samePosition + 2*(initialState[i+1, j].GetLightning() + initialState[i, j++].GetLightning())*directlyAdjacent + 4*initialState[i+1, j-1].GetLightning()*diagonalPosition ));
-							////TODO: falta comprobar queno haya nieve y lluvia a la vez
-						}else{ //fila superior
-							result[i,j].SetClouds((int)( initialState[i,j].GetClouds()*samePosition + (2*initialState[i+1, j].GetClouds() + initialState[i, j+1].GetClouds() + initialState[i, j-1].GetClouds())*directlyAdjacent + 2*(initialState[i-1, j+1].GetClouds() + initialState[i+1, j-1].GetClouds())*diagonalPosition ));
-							result[i,j].SetRain((int)( initialState[i,j].GetRain()*samePosition + (2*initialState[i+1, j].GetRain() + initialState[i, j+1].GetRain() + initialState[i, j-1].GetRain())*directlyAdjacent + 2*(initialState[i-1, j+1].GetRain() + initialState[i+1, j-1].GetRain())*diagonalPosition ));
-							result[i,j].SetSnow((int)( initialState[i,j].GetSnow()*samePosition + (2*initialState[i+1, j].GetSnow() + initialState[i, j+1].GetSnow() + initialState[i, j-1].GetSnow())*directlyAdjacent + 2*(initialState[i-1, j+1].GetSnow() + initialState[i+1, j-1].GetSnow())*diagonalPosition ));
-							result[i,j].SetLightning((int)( initialState[i,j].GetLightning()*samePosition + (2*initialState[i+1, j].GetLightning() + initialState[i, j+1].GetLightning() + initialState[i, j-1].GetLightning())*directlyAdjacent + 2*(initialState[i-1, j+1].GetLightning() + initialState[i+1, j-1].GetLightning())*diagonalPosition ));
-							
-						}
-					}else if(i == size0){
-						if(j==0){ //esquina inf. izq
-					
-					//TODO: cambiar para hacer los calculos de cada una de las variables (nubes, lluvia, nieve, tormenta
-					//		result[i, j] = initialState[i, j]*samePosition + 2*(initialState[i-1, j] + initialState[i, j+1])*directlyAdjacent + 4*initialState[i-1, j+1]*diagonalPosition;
-						}else if(j == size1){ // esquina inf. derecha
-					
-					//TODO: cambiar para hacer los calculos de cada una de las variables (nubes, lluvia, nieve, tormenta
-					//		result[i, j] = initialState[i, j]*samePosition + 2*(initialState[i-1, j] + initialState[i, j-1])*directlyAdjacent + 4*initialState[i-1, j-1]*diagonalPosition;
-						}else{ //fila inferior
-					
-					//TODO: cambiar para hacer los calculos de cada una de las variables (nubes, lluvia, nieve, tormenta
-					//		result[i,j] = initialState[i,j]*samePosition + (2*initialState[i-1, j] + initialState[i, j+1] + initialState[i, j-1])*directlyAdjacent + 2*(initialState[i-1, j+1] + initialState[i-1, j-1])*diagonalPosition;
-						}
-					}else if(j==0){//columna borde izquierdo
-					
-					//TODO: cambiar para hacer los calculos de cada una de las variables (nubes, lluvia, nieve, tormenta
-					//	result[i, j] = initialState[i, j]* samePosition + (initialState[i+1, j] + initialState[i-1, j] + 2* initialState[i, j+1])*directlyAdjacent + 2*(initialState[i+1, j+1] + initialState[i-1, j+1])*diagonalPosition;
-					}else if(j == size1){//columna borde derecho
-					
-					//TODO: cambiar para hacer los calculos de cada una de las variables (nubes, lluvia, nieve, tormenta
-					//	result[i, j] = result[i, j] = initialState[i, j]* samePosition + (initialState[i+1, j] + initialState[i-1, j] + 2* initialState[i, j-1])*directlyAdjacent + 2*(initialState[i+1, j-1] + initialState[i-1, j-1])*diagonalPosition;
-					}else{ //celdas sin borde
-					
-					//TODO: cambiar para hacer los calculos de cada una de las variables (nubes, lluvia, nieve, tormenta
-					//	result[i,j] = initialState[i,j]*samePosition + (initialState[i-1, j] + initialState[i+1, j] + initialState[i, j-1] + initialState[i, j+1])*directlyAdjacent + (initialState[i-1, j-1] + initialState[i-1, j+1] + initialState[i+1, j-1] + initialState[i+1, j+1])*diagonalPosition;
-					}
-				}
-			}
-            return result;
-		} */
- 
-       /*  public static float GenerateNormalRandom(float mu, float sigma) {
+        }
+
+        public static float GenerateNormalRandom(float mu, float sigma) {
             float rand1 = Random.Range(0.0f, 1.0f);
             float rand2 = Random.Range(0.0f, 1.0f);
 
             float n = Mathf.Sqrt(-2.0f * Mathf.Log(rand1)) * Mathf.Cos((2.0f * Mathf.PI) * rand2);
 
             return (mu + sigma * n);
-        } */
+        }
 
-        /* public override string ToString() {
-            string result = "SEASON: " + currentSeason.name + "\n";
-            int seasonIndex = currentSeason.GetIndex(); //it is common for all the map
-            for (int i = 0; i < currentState.GetLength(0); i++) {
-                for (int j = 0; j < currentState.GetLength(1); j++) {
-                    result += "CHUNK " + i + ", " + j;
-                    WeatherState s = currentState[i, j];
-                    result += s.ToString();
-                }
-            }
+        public override string ToString() {
+            string result = "State " + lastUpdate.ToString() + "  : \n\t" +
+                currentState.ToString();
             return result;
-        } */
+        }
 
-		
-		
         void Awake() {
+            //setting clock:
             clock = GameObject.FindGameObjectWithTag("Clock").GetComponent<CentralClock>();
 			if (clock == null) {
                 Debug.LogError("WEATHERCONTROLLER: No clock could be found, please remember to tag the object with the CentralClock script with the tag 'Clock' ");
                 Debug.Break();
             }
 			
-			//TODO: comprobar que solo hay 1 objeto con tag "WeatherController";
+			//no more than 1 weathercontroller
 			int numberOfControllers = GameObject.FindGameObjectsWithTag("WeatherController").Length;
 			if(numberOfControllers <1){
 				Debug.LogError("WEATHERCONTROLLER: the GameObject containing the WeatherController script needs to be taged as 'WeatherController'");
 			}
 			if(numberOfControllers >1){
 				Debug.LogError("WEATHERCONTROLLER: multiple GameObjects found with the tag 'WeatherController', there should be only one"); 
-			}
-			
-			//checking softening values
-			if((samePosition + directlyAdjacent*4 + diagonalPosition*4)!= 1){
-				Debug.LogError("WEATHERCONTROLLER: There is an error with the softening values, please revise it \n" + 
-								"samePosition + directlyAdjacent*4 + diagonalPosition*4 is not 1");
 			}
 			
 			//checking state multipliers
@@ -250,59 +181,26 @@ namespace weatherSystem {
             if (lightningSystem == null) {
                 Debug.LogError("WEATHERCONTROLLER: lighning system reference can not be null");
             }
-			
-			//checking the map
-			if(originPosition == null){
-				Debug.LogError("WEATHERCONTROLLER: Origin Position is a mandatory parameter");
-			}
-			if(endPosition == null){
-				Debug.LogError("WEATHERCONTROLLER: End Position is a mandatory parameter");
-			}
-			if(originPosition == endPosition){
-				Debug.LogError("WEATHERCONTROLLER: origin and end positions can not be equal");
-			}else if(originPosition.x == endPosition.x){
-				Debug.LogError("WEATHERCONTROLLER: origin and end positions have the same x value, this means that the map has no width");
-			}else if(originPosition.z == endPosition.z){
-				Debug.LogError("WEATHERCONTROLLER: origin and end positions have the same z value, this means that the map has no depth");
-			}
-			
-			float mapWidth = Mathf.Abs(originPosition.x - endPosition.x); //TODO: esta linea es al valor absoluto, buscar cual es la funcion para unity
-			float mapDepth = Mathf.Abs(originPosition.z - endPosition.z); //TODO: lo mismo que lo de arriba
-			
-			chunkSizeX = mapWidth/numberOfChunksX;
-			chunkSizeZ = mapDepth/numberOfChunksZ;
-			//paranoia checup
-			if(chunkSizeX <= 0){
-				Debug.LogError("WEATHERCONTROLLER: chunk Size in X is negative. There seems to have been a mistake in the code, please contact the developer.");
-			}
-			if(chunkSizeX <= 0){
-				Debug.LogError("WEATHERCONTROLLER: chunk Size in Z is negative. There seems to have been a mistake in the code, please contact the developer.");
-			}
-			if(chunkSizeX < 5){
-				Debug.LogWarning("WEATHERCONTROLLER: the calculated chunk Size in X calculated to be " + chunkSizeX + ", this will make the system slower. please consider reducing the number of chunks in the X axis");
-			}
-			if(chunkSizeZ < 5){
-				Debug.LogWarning("WEATHERCONTROLLER: the calculated chunk Size in Z calculated to be " + chunkSizeZ + ", this will make the system slower. please consider reducing the number of chunks in the Z axis");
-			}
-			if(debug){
-				Debug.Log("WEATHERCONTROLLER:  Calculated chunk size:	X:" + chunkSizeX + "	Z:" + chunkSizeZ);
-			}
-			//TODO: comprobar que el numero de chunks en x coincide con el numero de columnas de biomeDistribution y el numero de chunks en y coincide con el numero de filas
-			
-			//currentState = new WeatherState[,];
 		}
 
         // Use this for initialization
         void Start() {
+            // get season
+            currentSeason = clock.GetSeason();
+
+            currentState = new WeatherState(0,0,0,0);
+            currentState.ToString();
+
             lastUpdate = clock.getCurrentTime().Clone();
         }
 
         // Update is called once per frame
         void Update() {
             Time currentTime = clock.getCurrentTime();
-            if(lastUpdate.SecondsBetween(currentTime)>= (update_frequency * 60)) {
+            
+            if(lastUpdate.SecondsBetween(currentTime) >= (update_frequency * 60)) {
 				currentSeason = clock.GetSeason();
-                //WeatherState next = GetNextState(currentState, biome);//TODO: aqui se llama a metodo para calcular nuevo estado
+                currentState = GetNextState(currentState);
                 if (debug) {
                     Debug.Log("WEATHERCONTROLLER: A new Weather has been calculated: ");
 					Debug.Log(ToString());
@@ -310,7 +208,6 @@ namespace weatherSystem {
                 }
                 lastUpdate = currentTime.Clone();
             }
-          
 
         }
     }

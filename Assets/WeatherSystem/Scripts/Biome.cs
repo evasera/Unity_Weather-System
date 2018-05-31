@@ -11,8 +11,11 @@ namespace weatherSystem {
         public const int LIGHTNING = 2;
         public const int SNOW = 3;
         #endregion constants
-		
-		#region Public Variables
+
+        #region Public Variables
+        [Tooltip("For testing purposes. If checked debug messages will be writen on the console")]
+        public bool debug;
+
         [Tooltip("text file with the configuration matices")] //TODO: matrices en ingles???
 		public TextAsset configuration; 
 		#endregion Public Variables
@@ -24,11 +27,13 @@ namespace weatherSystem {
 
 
         public int[,] GetIntensities (){return intensities;}
-		public int GetIntensity(int season, int weatherCondition){return intensities[season,weatherCondition];}
+		public int GetIntensity(Season season, int weatherCondition){return intensities[season.GetIndex(),weatherCondition];}
 		public double[,] GetProbabilities(){return probabilities; }
-		public double GetProbability(int season, int weatherCondition){return probabilities[season,weatherCondition];}
+		public double GetProbability(Season season, int weatherCondition){return probabilities[season.GetIndex(),weatherCondition];}
         
 		public void ParseConfiguration(string text){
+            if (debug)
+                Debug.Log("BIOME " + this.name + ": Parsing the imput file.... ");
 			string[] lines = text.Split('\n');
 			int i = 0;
 			int n = 0; //the first dimension of the matices
@@ -39,36 +44,48 @@ namespace weatherSystem {
 			Season[] seasons = GetSeasons();
 			
 			while (i<lines.Length){
-                //Debug.Log(lines[i]);
-                //Debug.Break();
-
-				if (lines[i].Trim().Equals("SIZE:")){ //TODO: hay que revisar esta expresion, ¿seria necesario incluir \n?, algo a parte del trim???
-					i++;
-                    //Debug.Log(lines[i]);
-                    //Debug.Break();
+                if (debug) {
+                    Debug.Log("Line " + i + ": " + lines[i]);
+                }
+                if (lines[i].Trim().Equals("SIZE:")){ //TODO: hay que revisar esta expresion, ¿seria necesario incluir \n?, algo a parte del trim???
+                    if (debug) {
+                        Debug.Log("Line mathches the size section header");
+                    }
+                    i++;
 
                     string[] sizes = lines[i].Split(',');
-					if (sizes.Length != 2){ //TODO: comprobar esta linea. el tamaño es 2 seguro???
+					if (sizes.Length != 2){ 
                         Debug.LogError("BIOME " + this.name + ": the configuration file does not have a correct size declaration. please revise the biome configuration example for mor details on the size declaration.");
 					}
 					n = int.Parse(sizes[0].Trim());
 					m = int.Parse(sizes[1].Trim());
-                    //Debug.Log("Calculated matrix sizes, n = " + n + "\t m = " + m);
-					if(n==0|| m ==0){
+                    if (debug) {
+                        Debug.Log("Line " + i + ": " + lines[i]);
+                        Debug.Log("Calculated matrix sizes, n = " + n + "\t m = " + m);
+                    }
+
+                    if (n==0|| m ==0){
 						Debug.LogError("BIOME " + this.name + ": one or both of the sizes declared in the configuration file is 0. The size needs to be at least 1 in each dimension.");
 					}
 					probabilities = new double [n,m];
 					intensities = new int [n,m];
                     sizeDeclared = true;
+                    if (debug) {
+                        Debug.Log("Matrices initialized, sizes: \n " +
+                            "probabilities: " + probabilities.GetLength(0) + ", " + probabilities.GetLength(1) + "\t intensities: " + intensities.GetLength(0) + ", " + intensities.GetLength(1));
+                    }
 
-                    //Debug.Log("matrices created, sizes: " + n + ", " + m);
-
-				}else if(sizeDeclared && lines[i].Trim().Equals("PROBABILITIES:")){
-					i+=2; //we skip over the first table row becouse it only has the column names
-                    //Debug.Log(lines[i]);
-                    //Debug.Break();
+                } else if(sizeDeclared && lines[i].Trim().Equals("PROBABILITIES:")){
+                    if (debug) {
+                        Debug.Log("Line mathches the probabilities section header");
+                        Debug.Log("Skiping over the column name row....");
+                    }
+                    i += 2; //we skip over the first table row becouse it only has the column names
 
                     for (int j = 0; j<n; j++){
+                        if (debug) {
+                            Debug.Log("Line " + i + ": " + lines[i]);
+                        }
                         string[] split = lines[i].Split(',');
 						if(split.Length != m + 1){
 							Debug.LogError("BIOME " + this.name + ": There seems to be an incorrect number of values in the probabilities table \n" +
@@ -79,24 +96,36 @@ namespace weatherSystem {
 						for(int k =0; k<seasons.Length; k++){
 							if(seasons[k].name.Equals(seasonName)){
 								index = seasons[k].GetIndex();
-                                //Debug.Log("season index calculated: " + index);
-                                //Debug.Break();
-								break;
+                                if (debug) {
+                                    Debug.Log("season index calculated: " + index);
+                                }
+                                break;
 							}
 						}
 						for(int k = 1; k<=m; k++) {
-                            //Debug.Log("Line: " + split[k]);
+                            if (debug) {
+                                Debug.Log("Segment " + k + ": " + split[k]);
+                            }
                             probabilities[index, k-1] = int.Parse(split[k].Trim())/100.0;
-                            //Debug.Log("probabilities position " + index + ", " + (k-1) + " set to " + probabilities[index, k-1] );
-                            //Debug.Break();
+                            if (debug) {
+                                Debug.Log("probabilities position [" + index + ", " + (k - 1) + "] set to " + probabilities[index, k - 1]);
+                            }
                         }
 						i++;
                     }
                     probabilitiesDeclared = true;
-                    //Debug.Log("probabilities finished parsing");
-                    //Debug.Break();
+                    if (debug) {
+                        Debug.Log("probabilities parsing completed");
+                    }
                 } else if(sizeDeclared && lines[i].Trim().Equals("INTENSITIES:")){
+                    if (debug) {
+                        Debug.Log("Line mathches the probabilities section header");
+                        Debug.Log("Skiping over the column name row....");
+                    }
                     i += 2; //we skip over the first table row becouse it only has the column names
+                    if (debug) {
+                        Debug.Log("Line " + i + ": " + lines[i]);
+                    }
                     for (int j = 0; j < n; j++) {
                         string[] split = lines[i].Split(',');
                         if (split.Length != m + 1) {
@@ -107,26 +136,37 @@ namespace weatherSystem {
                         for (int k = 0; k < seasons.Length; k++) {
                             if (seasons[k].name.Equals(seasonName)) {
                                 index = seasons[k].index;
-                                //Debug.Log("season index calculated: " + index);
-                                //Debug.Break();
+                                if (debug) {
+                                    Debug.Log("season index calculated: " + index);
+                                }
                                 break;
                             }
                         }
                         for (int k = 1; k <= m; k++) {
+                            if (debug) {
+                                Debug.Log("Segment " + k + ": " + split[k]);
+                            }
                             intensities[index, k-1] = int.Parse(split[k].Trim(), CultureInfo.InvariantCulture);
-                            //Debug.Log("intensities position " + index + ", " + (k - 1) + " set to " + intensities[index, k - 1]);
-                            //Debug.Break();
+                            if (debug) {
+                                Debug.Log("intensities position [" + index + ", " + (k - 1) + "] set to " + probabilities[index, k - 1]);
+                            }
                         }
                         i++;
                     }
                     intensitiesDeclared = true;
-                    //Debug.Log("intensities parsing completed");
-                    //Debug.Break();
+                    if (debug) {
+                        Debug.Log("intensities parsing completed");
+                    }
+                }else if (debug) {
+                    Debug.Log("Line ignored");
                 }
 				i++;
 			}
             if(! (sizeDeclared && probabilitiesDeclared && intensitiesDeclared)) {
                 Debug.LogError("BIOME " + this.name + ": not all sections of the declaration have been found, pleas include SIZE, PROBABILITIES and INTENSITIES.");
+            }
+            if (debug) {
+                Debug.Log("parsing completed");
             }
 			
 		}
@@ -179,18 +219,17 @@ namespace weatherSystem {
 			if(configuration == null){
 				Debug.LogError("BIOME " + this.name + ": the configuration file is necessary");
 			}
-			if(configuration.text.Equals("")){ //TODO: asi es como se comparaba con Strings, no?
+			if(configuration.text.Equals("")){ 
 				Debug.LogError("BIOME " + this.name + ": the configuration file cannot be empty");
 			}
-			
-			
-		}
-		void Start(){
-			//NOTA: tiene que estar aqui porque necesitamos referencias a las estaciones
-			ParseConfiguration(configuration.text);
-            //TODO: llamar aqui al metodo para hacer parse del fichero de configuracion
-            Debug.Log( "bla bla bla" + ToString());
-		}
+
+            ParseConfiguration(configuration.text);
+            if (debug) {
+                Debug.Log("BIOME " + this.name + ": Biomme configuration set to: \n" + ToString());
+            }
+
+        }
+		void Start(){}
 		void Update(){}
 	}
 }

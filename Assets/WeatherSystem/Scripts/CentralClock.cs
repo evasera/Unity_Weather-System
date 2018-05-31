@@ -64,7 +64,7 @@ namespace weatherSystem {
 		private Dictionary<Date, Time>  sunsetTimes;
 		#endregion Private Atributes
 
-        #region Get and Set Methods
+        #region Getters and Setters
         public int GetNumberOfMonths() { return monthList.Length; }
         public Month[] getMonthList() {return monthList;}
 		public Month getMonth () {return currentDate.GetMonth();}
@@ -251,9 +251,9 @@ namespace weatherSystem {
 			}
             return result;
         }
-		#endregion Get and Set Methods
-       
-		//Parameter checkup and initialization
+        #endregion Getters and Setters
+
+        //Parameter checkup and initialization
         void Awake(){
 			//TODO: comprobar que no hay mas de 1 solo objecto con tag "Clock"
 			

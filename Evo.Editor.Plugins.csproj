@@ -300,6 +300,7 @@
     <None Include="Assets\Imported\HolyShift\Shaders\FXWaterLowpoly.shader" />
     <None Include="Assets\Imported\HolyShift\Shaders\WaterInclude.cginc" />
     <None Include="Assets\Imported\HolyShift\readme.txt" />
+    <None Include="Assets\LowPolyFantasyClouds\Shaders\CloudsShader.shader" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramCompute.compute" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramRender.shader" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\ParadeRender.shader" />
@@ -361,6 +362,10 @@
     <None Include="Assets\Standard Assets\Environment\Water\Water4\Shaders\FXWater4Simple.shader" />
     <None Include="Assets\Standard Assets\Environment\Water\Water4\Shaders\WaterInclude.cginc" />
     <None Include="Assets\Standard Assets\Fonts\OpenSans\License!.txt" />
+    <None Include="Assets\Standard Assets\ParticleSystems\ParticleSystemsGuidelines.txt" />
+    <None Include="Assets\Standard Assets\ParticleSystems\Shaders\PriorityParticleAdd.shader" />
+    <None Include="Assets\Standard Assets\ParticleSystems\Shaders\PriorityParticleAddSoft.shader" />
+    <None Include="Assets\Standard Assets\ParticleSystems\Shaders\PriorityParticleAlpha.shader" />
     <None Include="Assets\Standard Assets\Prototyping\Shaders\WorldCoordDiffuse.shader" />
     <None Include="Assets\WeatherSystem\Biome Configuration\BiomeConfigutationExample.txt" />
     <None Include="Assets\WeatherSystem\Biome Configuration\Forest.txt" />

@@ -8,8 +8,12 @@ namespace weatherSystem
     public class GUI : MonoBehaviour {
 
         public CentralClock clock;
+        public WeatherController weatherController;
 
-        float seconds = 0.0f;
+        public UnityEngine.UI.Text timeText;
+        public UnityEngine.UI.Text dateText;
+        public UnityEngine.UI.Text SeasonText;
+        public UnityEngine.UI.Text weatherStateText;
 
         // Use this for initialization
         void Start() {
@@ -18,14 +22,11 @@ namespace weatherSystem
 
         // Update is called once per frame
         void Update() {
-            seconds += UnityEngine.Time.deltaTime;
-
-            if (seconds > 10)
-            {
-                Debug.Log("Time: " + clock.getCurrentTime().ToString());
-                seconds -= 10;
-            }
-    }
+            timeText.text = clock.getCurrentTime().ToString();
+            dateText.text = clock.getCurrentDate().ToString();
+            SeasonText.text = clock.GetSeason().name;
+            weatherStateText.text = weatherController.ToString();
+        }
 
 
     }

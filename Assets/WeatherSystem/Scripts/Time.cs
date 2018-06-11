@@ -38,7 +38,7 @@ namespace weatherSystem{
         override public string ToString(){
             string result = "";
 
-            result += hours.ToString() + ":" + minutes.ToString() + ":" + seconds.ToString();
+            result += hours.ToString() + ":" + minutes.ToString();
             return result;
         }
         public int add(int s){

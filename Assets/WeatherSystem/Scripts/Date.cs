@@ -104,9 +104,11 @@ namespace weatherSystem{
             
         }  
         public void AddDay(int d){
-            if ((day + d)<=month.Length) { this.day += d; }
+            if ((day + d)<=month.Length) {
+                this.day += d;
+            }
             else{
-                int leftover = d - (month.Length - day);
+                int leftover = d - (month.Length - day) -1;
                 AddMonth(1);
                 day = 1;
                 while (leftover +1 > month.Length){
@@ -114,7 +116,7 @@ namespace weatherSystem{
                     AddMonth(1);
                 }
                 day += leftover;
-            }
+            } 
         }
 		public void SubstractDay(int d){
 			if(d<0) AddDay(-d);

@@ -516,7 +516,10 @@ namespace weatherSystem {
 				currentDate.AddDay(dayChange);
                 if (debug){
 					Debug.Log("CENTRALCLOCK: Midnight reached: " + currentTime + "\n" + 
-                            "New date: " + currentDate);
+                            "Increase: " + dayChange + "\t New date: " + currentDate);
+                    Debug.Log("CENTRALCLOCK: End of season = " + currentSeason.GetEndDate() + "\n" + 
+                            "Equal to today?: " + currentDate.CompareTo(currentSeason.GetEndDate()));
+               
                     Debug.Break();
 				}
                 //Updating season

@@ -10,29 +10,29 @@ namespace weatherSystem {
 		[Tooltip("For testing purposes. If checked debug messages will be writen on the console")]
 		public bool debug;
         
-		[Header ("Initial time data:")]
+		[Header ("Simulation Settings:")]
+        public double Day_length_in_minutes;
         public string Initial_date = "01/01/0001";
         public string Initial_time = "12:00:00";
-        public string Initial_day_of_week;
+        //public string Initial_day_of_week;
 
-        [Header ("Calendar settings:")]
-        public double Day_length_in_minutes;
+        [Header ("Calendar Settings:")]
         public int Number_of_seasons;
         public int Days_in_Year;
-        public string[] Day_names; //De momento esto no se esta utilizando para nada, se deberia incluir en el objeto Date???
+        //public string[] Day_names; //De momento esto no se esta utilizando para nada, se deberia incluir en el objeto Date???
 
-        [Header ("Day length settings")]
+        [Header ("Day Length Settings")]
         public string summer_solstice_date = "dd/mm/yyyy";
-        public int summer_solstice_hours_of_light;
+        public double summer_solstice_hours_light;
 
         public string autumn_equinox_date = "dd/mm/yyyy";
-        public int autumn_equinox_hours_of_light = 12;
+        public double autumn_equinox_hours_light = 12;
 
         public string winter_solstice_date = "dd/mm/yyyy";
-        public int winter_solstice_hours_of_light;
+        public double winter_solstice_hours_light;
 
         public string spring_equinox_date = "dd/mm/yyyy";
-        public int spring_equinox_hours_of_light = 12;
+        public double spring_equinox_hours_light = 12;
 		#endregion Public Atributes
 		
 		#region Private Atributes
@@ -282,12 +282,12 @@ namespace weatherSystem {
                 Debug.Break();
             }
 
-            //No null values in day names
-            for (int i = 0; i < Day_names.Length; i++)
-            {
-                if (Day_names[i] == "")
-                    Debug.LogError("CENTRALCLOCK: All day names must be declared");
-            }
+            ////No null values in day names
+            //for (int i = 0; i < Day_names.Length; i++)
+            //{
+            //    if (Day_names[i] == "")
+            //        Debug.LogError("CENTRALCLOCK: All day names must be declared");
+            //}
 
             //initial date
             Initial_date.Trim();
@@ -345,12 +345,12 @@ namespace weatherSystem {
             if (month == null)
                 Debug.LogError("CENTRALCLOCK: summer solstice's month could not be found");
             summerSolstice = new Date(day, month, -1);
-            if (summer_solstice_hours_of_light <= 0)
+            if (summer_solstice_hours_light <= 0)
                 Debug.LogError("CENTRALCLOCK: Summer solstice cannot have negative or 0 hous of light");
-            if (summer_solstice_hours_of_light >= 24)
+            if (summer_solstice_hours_light >= 24)
                 Debug.LogError("CENTRALCLOCK: Summer solstice cannot have 24 or more hours of light");
-            Time summerSolstice_Sunrise = midday.TimeWithSeconds(midday, -(int)((summer_solstice_hours_of_light * 3600) / 2));
-            Time summerSolstice_Sunset = midday.TimeWithSeconds(midday, (int)((summer_solstice_hours_of_light * 3600) / 2));
+            Time summerSolstice_Sunrise = midday.TimeWithSeconds(midday, -(int)((summer_solstice_hours_light * 3600) / 2));
+            Time summerSolstice_Sunset = midday.TimeWithSeconds(midday, (int)((summer_solstice_hours_light * 3600) / 2));
             sunriseTimes.Add(summerSolstice, summerSolstice_Sunrise);
 			sunsetTimes.Add(summerSolstice, summerSolstice_Sunset);
 			
@@ -370,12 +370,12 @@ namespace weatherSystem {
             if (month == null)
                 Debug.LogError("CENTRALCLOCK: Winter solstice's month could not be found");
             winterSolstice = new Date(day, month, -1);
-            if (winter_solstice_hours_of_light <= 0)
+            if (winter_solstice_hours_light <= 0)
                 Debug.LogError("CENTRALCLOCK: Winter solstice cannot have negative or 0 hous of light");
-            if (winter_solstice_hours_of_light >= 24)
+            if (winter_solstice_hours_light >= 24)
                 Debug.LogError("CENTRALCLOCK: Winter solstice cannot have 24 or more hours of light");
-            Time winterSolstice_Sunrise = midday.TimeWithSeconds(midday, -(int)((winter_solstice_hours_of_light * 3600) / 2));
-            Time winterSolstice_Sunset = midday.TimeWithSeconds(midday, (int)((winter_solstice_hours_of_light * 3600) / 2));
+            Time winterSolstice_Sunrise = midday.TimeWithSeconds(midday, -(int)((winter_solstice_hours_light * 3600) / 2));
+            Time winterSolstice_Sunset = midday.TimeWithSeconds(midday, (int)((winter_solstice_hours_light * 3600) / 2));
             sunriseTimes.Add(winterSolstice, winterSolstice_Sunrise);
 			sunsetTimes.Add(winterSolstice, winterSolstice_Sunset);
 
@@ -395,12 +395,12 @@ namespace weatherSystem {
             if (month == null)
                 Debug.LogError("CENTRALCLOCK: Spring equinox month could not be found");
             springEquinox = new Date(day, month, -1);
-            if (spring_equinox_hours_of_light <= 0)
+            if (spring_equinox_hours_light <= 0)
                 Debug.LogError("CENTRALCLOCK: Spring equinox cannot have negative or 0 hous of light");
-            if (spring_equinox_hours_of_light >= 24)
+            if (spring_equinox_hours_light >= 24)
                 Debug.LogError("CENTRALCLOCK: Spring equinox cannot have 24 or more hours of light");
-            Time springEquinox_Sunrise = midday.TimeWithSeconds(midday, -(int)((spring_equinox_hours_of_light * 3600) / 2));
-            Time springEquinox_Sunset = midday.TimeWithSeconds(midday, (int)((spring_equinox_hours_of_light * 3600) / 2));
+            Time springEquinox_Sunrise = midday.TimeWithSeconds(midday, -(int)((spring_equinox_hours_light * 3600) / 2));
+            Time springEquinox_Sunset = midday.TimeWithSeconds(midday, (int)((spring_equinox_hours_light * 3600) / 2));
             sunriseTimes.Add(springEquinox, springEquinox_Sunrise);
             sunsetTimes.Add(springEquinox, springEquinox_Sunset);
 			
@@ -420,32 +420,32 @@ namespace weatherSystem {
             if (month == null)
                 Debug.LogError("CENTRALCLOCK: Spring equinox month could not be found");
             autumnEquinox = new Date(day, month, -1);
-            if (autumn_equinox_hours_of_light <= 0)
+            if (autumn_equinox_hours_light <= 0)
                 Debug.LogError("CENTRALCLOCK: autumn equinox cannot have negative or 0 hous of light");
-            if (autumn_equinox_hours_of_light >= 24)
+            if (autumn_equinox_hours_light >= 24)
                 Debug.LogError("CENTRALCLOCK: autumn equinox cannot have 24 or more hours of light");
-            Time autumnEquinox_Sunrise = midday.TimeWithSeconds(midday, -(int)((spring_equinox_hours_of_light * 3600) / 2));
-            Time autumnEquinox_Sunset = midday.TimeWithSeconds(midday, (int)((spring_equinox_hours_of_light * 3600) / 2));
+            Time autumnEquinox_Sunrise = midday.TimeWithSeconds(midday, -(int)((spring_equinox_hours_light * 3600) / 2));
+            Time autumnEquinox_Sunset = midday.TimeWithSeconds(midday, (int)((spring_equinox_hours_light * 3600) / 2));
             sunriseTimes.Add(autumnEquinox, autumnEquinox_Sunrise);
             sunsetTimes.Add(autumnEquinox, autumnEquinox_Sunset);
 			
             int daysbetween = 0;
-            int LengthDifference = 0;
+            double LengthDifference = 0;
             //Winter to Spring time change rate:
             daysbetween = winterSolstice.DaysBetween(springEquinox);
-            LengthDifference = spring_equinox_hours_of_light - winter_solstice_hours_of_light;
+            LengthDifference = spring_equinox_hours_light - winter_solstice_hours_light;
             winterToSpringRate = ((LengthDifference / 2.0) / daysbetween) * 3600;
             //spring to summer time change rate:
             daysbetween = springEquinox.DaysBetween(summerSolstice);
-            LengthDifference = summer_solstice_hours_of_light - spring_equinox_hours_of_light;
+            LengthDifference = summer_solstice_hours_light - spring_equinox_hours_light;
             springToSummerRate = ((LengthDifference / 2.0) / daysbetween) * 3600;
             //summer to autumn time change rate:
             daysbetween = summerSolstice.DaysBetween(autumnEquinox);
-            LengthDifference = autumn_equinox_hours_of_light - summer_solstice_hours_of_light;
+            LengthDifference = autumn_equinox_hours_light - summer_solstice_hours_light;
             summerToAutumnRate = ((LengthDifference / 2.0) / daysbetween) * 3600;
             //autumn to winter time change rate:
             daysbetween = autumnEquinox.DaysBetween(winterSolstice);
-            LengthDifference = winter_solstice_hours_of_light - autumn_equinox_hours_of_light;
+            LengthDifference = winter_solstice_hours_light - autumn_equinox_hours_light;
             autumnToWinterRate = ((LengthDifference / 2.0) / daysbetween) * 3600;
 
 

@@ -14,11 +14,6 @@ namespace weatherSystem {
         public GameObject intensity3;
         public GameObject intensity4;
         public GameObject intensity5;
-        public GameObject intensity6;
-        public GameObject intensity7;
-        public GameObject intensity8;
-        public GameObject intensity9;
-        public GameObject intensity10;
         #endregion public atributes
 
         public void SetIntensity(int intensity) {
@@ -52,36 +47,6 @@ namespace weatherSystem {
             } else {
                 intensity5.SetActive(false);
             }
-            if (intensity > 5) {
-                if(!intensity6.active)
-                    intensity6.SetActive(true);
-            } else {
-                intensity6.SetActive(false);
-            }
-            if (intensity > 6) {
-                if(!intensity7.active)
-                    intensity7.SetActive(true);
-            } else {
-                intensity7.SetActive(false);
-            }
-            if (intensity > 7) {
-                if(!intensity8.active)
-                    intensity8.SetActive(true);
-            } else {
-                intensity8.SetActive(false);
-            }
-            if (intensity > 8) {
-                if(!intensity9.active)
-                    intensity9.SetActive(true);
-            } else {
-                intensity9.SetActive(false);
-            }
-            if (intensity > 9) {
-                if(!intensity10.active)
-                    intensity10.SetActive(true);
-            } else {
-                intensity10.SetActive(false);
-            }
         }
 
         void Awake() {
@@ -90,11 +55,6 @@ namespace weatherSystem {
             intensity3.SetActive(false);
             intensity4.SetActive(false);
             intensity5.SetActive(false);
-            intensity6.SetActive(false);
-            intensity7.SetActive(false);
-            intensity8.SetActive(false);
-            intensity9.SetActive(false);
-            intensity10.SetActive(false);
         }
 
         

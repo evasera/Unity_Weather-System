@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,7 +27,7 @@ namespace weatherSystem{
 		public int GetIndex(){return index;}
 		#endregion Get and Set functions
 		
-		public bool Equals(Object o){
+		public bool Equals(UnityEngine.Object o){
 			if(debug){
 				Debug.Log("Checking Equality between Season " + this.name + "and Object o:" + o.name);
 			}
@@ -43,8 +44,6 @@ namespace weatherSystem{
 				return result;
 			}
 		}
-	
-        
         
         private void Awake(){
 			//Index is not negative:
@@ -148,6 +147,10 @@ namespace weatherSystem{
         void Update()
         {
 
+        }
+
+        internal Season Clone() {
+            throw new NotImplementedException();
         }
     }
 }

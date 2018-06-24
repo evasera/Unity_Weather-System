@@ -21,153 +21,243 @@ namespace weatherSystem {
 		#endregion Public Variables
 		
 		#region Private Variables
-		private int[,] intensities;
-		private double[,] probabilities;
+		private float [,] cloudProbabilities;
+		private float [,] rainProbabilities;
+		private float [,] snowProbabilities;
+		private float [,] lightningProbabilities;
+        private int maxValue;
+        private int numSeasons;
         #endregion Private Variables
 
+        #region getters and setters
+        public float GetCloudProbability(int i, int s) {
+            return cloudProbabilities[i, s];
+        }
+        public float GetRainProbability(int i, int s) {
+            return rainProbabilities[i, s];
+        }
+        public float GetSnowProbability(int i, int s) {
+            return cloudProbabilities[i, s];
+        }
+        public float GetLightningProbability(int i, int s) {
+            return cloudProbabilities[i, s];
+        }
+        public int GetMaxIntensityValue() { return maxValue; }
 
-        public int[,] GetIntensities (){return intensities;}
-		public int GetIntensity(Season season, int weatherCondition){return intensities[season.GetIndex(),weatherCondition];}
-		public double[,] GetProbabilities(){return probabilities; }
-		public double GetProbability(Season season, int weatherCondition){return probabilities[season.GetIndex(),weatherCondition];}
-        
-		public void ParseConfiguration(string text){
-            if (debug)
+        public float[,] GetCloudProbabiliyMatrix() { return cloudProbabilities; }
+        public float[,] GetRainProbabiliyMatrix() { return rainProbabilities; }
+        public float[,] GetSnowProbabiliyMatrix() { return snowProbabilities; }
+        public float[,] GetLightningProbabiliyMatrix() { return lightningProbabilities; }
+
+        public float[] GetCloudProbabiliyRow(int s) {
+            float[] row = new float[maxValue+1];
+            for(int i = 0; i<= maxValue; i++) {
+                row[i] = cloudProbabilities[i, s];
+            }
+
+            return row;
+        }
+        public float[] GetRainProbabiliyRow(int s) {
+            float[] row = new float[maxValue+1];
+            for (int i = 0; i <= maxValue; i++) {
+                row[i] = rainProbabilities[i, s];
+            }
+
+            return row;
+        }
+        public float[] GetSnowProbabiliyRow(int s) {
+            float[] row = new float[maxValue+1];
+            for (int i = 0; i <= maxValue; i++) {
+                row[i] = snowProbabilities[i, s];
+            }
+
+            return row;
+        }
+        public float[] GetLightningProbabiliyRow(int s) {
+            float[] row = new float[maxValue+1];
+            for (int i = 0; i <= maxValue; i++) {
+                row[i] = lightningProbabilities[i, s];
+            }
+
+            return row;
+        }
+        #endregion getters and setters
+
+
+
+
+
+        public void ParseConfiguration(string text){
+			if (debug)
                 Debug.Log("BIOME " + this.name + ": Parsing the imput file.... ");
-			string[] lines = text.Split('\n');
-			int i = 0;
-			int n = 0; //the first dimension of the matices
-			int m = 0; //the second dimension of the matices
-			bool sizeDeclared = false;
-			bool probabilitiesDeclared = false;
-			bool intensitiesDeclared = false;
+			
 			Season[] seasons = GetSeasons();
 			
-			while (i<lines.Length){
-                if (debug) {
+			string[] lines = text.Split('\n');
+			
+			int i = 0; 
+			maxValue = 0;
+			numSeasons = 0;
+			
+			while(i<lines.Length){
+				if (debug) {
                     Debug.Log("Line " + i + ": " + lines[i]);
-                }
-                if (lines[i].Trim().Equals("SIZE:")){ //TODO: hay que revisar esta expresion, ¿seria necesario incluir \n?, algo a parte del trim???
-                    if (debug) {
-                        Debug.Log("Line mathches the size section header");
+                    Debug.Break();
+                }		
+				if(lines[i].Trim().Equals("//VALUE RANGE")){
+					i++;
+					
+					string[] values = lines[i].Split(':');
+					if(values[0].Trim().Equals("max intensity")) {
+                        maxValue = int.Parse(values[1]);
+                        i++;
                     }
-                    i++;
-
-                    string[] sizes = lines[i].Split(',');
-					if (sizes.Length != 2){ 
-                        Debug.LogError("BIOME " + this.name + ": the configuration file does not have a correct size declaration. please revise the biome configuration example for mor details on the size declaration.");
+                    values = lines[i].Split(':');
+                    if (values[0].Trim().Equals("number of seasons")) {
+                        numSeasons = int.Parse(values[1]);
+                        i++;
+                    }
+                    
+                    if (debug){
+						Debug.Log("Value Range values readed \n" +
+                            "Max Intensity: " + maxValue + "\t Number of Seasons: " + numSeasons);
+						Debug.Break();
 					}
-					n = int.Parse(sizes[0].Trim());
-					m = int.Parse(sizes[1].Trim());
+				}
+				if(lines[i].Trim().Equals("//CLOUDS")){
                     if (debug) {
-                        Debug.Log("Line " + i + ": " + lines[i]);
-                        Debug.Log("Calculated matrix sizes, n = " + n + "\t m = " + m);
+                        Debug.Log("now reading cloud data...");
+                        Debug.Break();
                     }
+                    i += 2; //2 unit increase becouse we are skipping the header line
+                    cloudProbabilities = new float[maxValue+1, numSeasons];
 
-                    if (n==0|| m ==0){
-						Debug.LogError("BIOME " + this.name + ": one or both of the sizes declared in the configuration file is 0. The size needs to be at least 1 in each dimension.");
-					}
-					probabilities = new double [n,m];
-					intensities = new int [n,m];
-                    sizeDeclared = true;
-                    if (debug) {
-                        Debug.Log("Matrices initialized, sizes: \n " +
-                            "probabilities: " + probabilities.GetLength(0) + ", " + probabilities.GetLength(1) + "\t intensities: " + intensities.GetLength(0) + ", " + intensities.GetLength(1));
-                    }
-
-                } else if(sizeDeclared && lines[i].Trim().Equals("PROBABILITIES:")){
-                    if (debug) {
-                        Debug.Log("Line mathches the probabilities section header");
-                        Debug.Log("Skiping over the column name row....");
-                    }
-                    i += 2; //we skip over the first table row becouse it only has the column names
-
-                    for (int j = 0; j<n; j++){
+                    for (int s = 0; s < numSeasons; s++) {
+                        string[] values = lines[i].Split(',');
+                        int index = getSeasonIndex(values[0].Trim(), seasons);
                         if (debug) {
-                            Debug.Log("Line " + i + ": " + lines[i]);
+                            Debug.Log("Reading line " + i + ": \n" +
+                                lines[i]);
+                            Debug.Log("Season name: " + values[0].Trim() + "\t index: " + index);
+                            Debug.Break();
                         }
-                        string[] split = lines[i].Split(',');
-						if(split.Length != m + 1){
-							Debug.LogError("BIOME " + this.name + ": There seems to be an incorrect number of values in the probabilities table \n" +
-                                "size: " + split.Length + "\t expected: " + (m+1) + "m: " + m);
-						}
-						int index = 0;
-						string seasonName = split[0];
-						for(int k =0; k<seasons.Length; k++){
-							if(seasons[k].name.Equals(seasonName)){
-								index = seasons[k].GetIndex();
-                                if (debug) {
-                                    Debug.Log("season index calculated: " + index);
-                                }
-                                break;
-							}
-						}
-						for(int k = 1; k<=m; k++) {
+
+                        for (int j = 0; j <= maxValue; j++) {
                             if (debug) {
-                                Debug.Log("Segment " + k + ": " + split[k]);
+                                Debug.Log("cloud probability for season " + values[0].Trim() + " and intensity " + j + " :" + (values[j+1].Trim()));
+                                Debug.Break();
                             }
-                            probabilities[index, k-1] = int.Parse(split[k].Trim())/100.0;
+                            cloudProbabilities[j, index] = float.Parse(values[j+1].Trim());
                             if (debug) {
-                                Debug.Log("probabilities position [" + index + ", " + (k - 1) + "] set to " + probabilities[index, k - 1]);
-                            }
-                        }
-						i++;
-                    }
-                    probabilitiesDeclared = true;
-                    if (debug) {
-                        Debug.Log("probabilities parsing completed");
-                    }
-                } else if(sizeDeclared && lines[i].Trim().Equals("INTENSITIES:")){
-                    if (debug) {
-                        Debug.Log("Line mathches the probabilities section header");
-                        Debug.Log("Skiping over the column name row....");
-                    }
-                    i += 2; //we skip over the first table row becouse it only has the column names
-                    if (debug) {
-                        Debug.Log("Line " + i + ": " + lines[i]);
-                    }
-                    for (int j = 0; j < n; j++) {
-                        string[] split = lines[i].Split(',');
-                        if (split.Length != m + 1) {
-                            Debug.LogError("BIOME " + this.name + ": There seems to be an incorrect number of values in the probabilities table, row; " + j + 1);
-                        }
-                        int index = 0;
-                        string seasonName = split[0];
-                        for (int k = 0; k < seasons.Length; k++) {
-                            if (seasons[k].name.Equals(seasonName)) {
-                                index = seasons[k].index;
-                                if (debug) {
-                                    Debug.Log("season index calculated: " + index);
-                                }
-                                break;
-                            }
-                        }
-                        for (int k = 1; k <= m; k++) {
-                            if (debug) {
-                                Debug.Log("Segment " + k + ": " + split[k]);
-                            }
-                            intensities[index, k-1] = int.Parse(split[k].Trim(), CultureInfo.InvariantCulture);
-                            if (debug) {
-                                Debug.Log("intensities position [" + index + ", " + (k - 1) + "] set to " + probabilities[index, k - 1]);
+                                Debug.Log("converted value: " + cloudProbabilities[j, index]);
+                                Debug.Break(); 
                             }
                         }
                         i++;
                     }
-                    intensitiesDeclared = true;
+					
+				}
+				if(lines[i].Trim().Equals("//RAIN")){
                     if (debug) {
-                        Debug.Log("intensities parsing completed");
+                        Debug.Log("now reading rain data...");
+                        Debug.Break();
                     }
-                }else if (debug) {
-                    Debug.Log("Line ignored");
+                    i += 2; //2 unit increase becouse we are skipping the header line
+                    rainProbabilities = new float[maxValue + 1, numSeasons];
+
+                    for (int s = 0; s < numSeasons; s++) {
+                        string[] values = lines[i].Split(',');
+                        int index = getSeasonIndex(values[0].Trim(), seasons);
+                        if (debug) {
+                            Debug.Log("Reading line " + i + ": \n" +
+                                lines[i]);
+                            Debug.Log("Season name: " + values[0].Trim() + "\t index: " + index);
+                            Debug.Break();
+                        }
+
+                        for (int j = 0; j <= maxValue; j++) {
+                            if (debug) {
+                                Debug.Log("rain probability for season " + values[0].Trim() + " and intensity " + j + " :" + (values[j + 1].Trim()));
+                                Debug.Break();
+                            }
+                            rainProbabilities[j, index] = float.Parse(values[j + 1].Trim());
+                            if (debug) {
+                                Debug.Log("converted value: " + cloudProbabilities[j, index]);
+                                Debug.Break();
+                            }
+                        }
+                        i++;
+                    }
+
                 }
-				i++;
+                if (lines[i].Trim().Equals("//SNOW")){
+                    if (debug) {
+                        Debug.Log("now reading snow data...");
+                        Debug.Break();
+                    }
+                    i += 2; //2 unit increase becouse we are skipping the header line
+                    snowProbabilities = new float[maxValue + 1, numSeasons];
+
+                    for (int s = 0; s < numSeasons; s++) {
+                        string[] values = lines[i].Split(',');
+                        int index = getSeasonIndex(values[0].Trim(), seasons);
+                        if (debug) {
+                            Debug.Log("Reading line " + i + ": \n" +
+                                lines[i]);
+                            Debug.Log("Season name: " + values[0].Trim() + "\t index: " + index);
+                            Debug.Break();
+                        }
+
+                        for (int j = 0; j <= maxValue; j++) {
+                            if (debug) {
+                                Debug.Log("snow probability for season " + values[0].Trim() + " and intensity " + j + " :" + (values[j + 1].Trim()));
+                                Debug.Break();
+                            }
+                            snowProbabilities[j, index] = float.Parse(values[j + 1].Trim());
+                            if (debug) {
+                                Debug.Log("converted value: " + snowProbabilities[j, index]);
+                                Debug.Break();
+                            }
+                        }
+                        i++;
+                    }
+
+                }
+                if (lines[i].Trim().Equals("//LIGHTNING")){ //TODO: hay qeu ver como se escribe bien, que soy tontita y creo que no lo estoy escribiendo correctamente
+                    if (debug) {
+                        Debug.Log("now reading lightning data...");
+                        Debug.Break();
+                    }
+                    i += 2; //2 unit increase becouse we are skipping the header line
+                    lightningProbabilities = new float[maxValue + 1, numSeasons];
+
+                    for (int s = 0; s < numSeasons; s++) {
+                        string[] values = lines[i].Split(',');
+                        int index = getSeasonIndex(values[0].Trim(), seasons);
+                        if (debug) {
+                            Debug.Log("Reading line " + i + ": \n" +
+                                lines[i]);
+                            Debug.Log("Season name: " + values[0].Trim() + "\t index: " + index);
+                            Debug.Break();
+                        }
+
+                        for (int j = 0; j <= maxValue; j++) {
+                            if (debug) {
+                                Debug.Log("lightning probability for season " + values[0].Trim() + " and intensity " + j + " :" + (values[j + 1].Trim()));
+                                Debug.Break();
+                            }
+                            lightningProbabilities[j, index] = float.Parse(values[j + 1].Trim());
+                            if (debug) {
+                                Debug.Log("converted value: " + lightningProbabilities[j, index]);
+                                Debug.Break();
+                            }
+                        }
+                        i++;
+                    }
+
+                }
+                i++;
 			}
-            if(! (sizeDeclared && probabilitiesDeclared && intensitiesDeclared)) {
-                Debug.LogError("BIOME " + this.name + ": not all sections of the declaration have been found, pleas include SIZE, PROBABILITIES and INTENSITIES.");
-            }
-            if (debug) {
-                Debug.Log("parsing completed");
-            }
 			
 		}
 		
@@ -185,33 +275,60 @@ namespace weatherSystem {
 			}
 			return result;
 		}
+		
+		private int getSeasonIndex(string name,  Season[] seasons ){
+			int result = -1;
+			
+			for(int i = 0; i< seasons.Length; i++){
+				Season s = seasons[i];
+				
+				if(s.name.Equals(name)){ //TODO: al comprobar pasar los dos nombres a minusculas
+					result = s.index;
+					break;
+				}
+			}
+			if(result == -1){
+                Debug.LogError("name " + name + " could not ne mathed with any Season object, please remember to include the tag 'Season' ");
+				Debug.Break();
+			}
+			return result;
+		}
 
         public override string ToString(){
             string result = "";
-            int n = probabilities.GetLength(0);
-            int m = probabilities.GetLength(1);
-            result += "SIZE: " + probabilities.GetLength(0) + " , " + probabilities.GetLength(1) + "\n \n"
-                    + "PROBABILITIES: \n";
-            for(int i = 0; i<n; i++) {
-                for(int j = 0; j<m; j++) {
-                    if(j == m - 1){
-                        result += probabilities[i, j] + "\n";
-                    } else {
-                        result += probabilities[i, j] + ", ";
-                    }
+            result += "BIOME " + name + ": \n";
+            result += "CLOUDS: \n";
+            for(int j = 0;j<numSeasons; j++) {
+                for(int i = 0; i<= maxValue; i++) {
+                    result += cloudProbabilities[i, j] + "\t";
                 }
-            }
-            result += "\n" + "INTENSITIES: \n";
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < m; j++) {
-                    if (j == m - 1) {
-                        result += intensities[i, j] + "\n";
-                    } else {
-                        result += intensities[i, j] + ", ";
-                    }
-                }
-            }
+                result += "\n";
 
+            }
+            result += "RAIN: \n";
+            for (int j = 0; j < numSeasons; j++) {
+                for (int i = 0; i <= maxValue; i++) {
+                    result += rainProbabilities[i, j] + "\t";
+                }
+                result += "\n";
+
+            }
+            result += "SNOW: \n";
+            for (int j = 0; j < numSeasons; j++) {
+                for (int i = 0; i <= maxValue; i++) {
+                    result += snowProbabilities[i, j] + "\t";
+                }
+                result += "\n";
+
+            }
+            result += "LIGHTNING: \n";
+            for (int j = 0; j < numSeasons; j++) {
+                for (int i = 0; i <= maxValue; i++) {
+                    result += lightningProbabilities[i, j] + "\t";
+                }
+                result += "\n";
+
+            }
             return result;
         }
 
@@ -229,7 +346,9 @@ namespace weatherSystem {
             }
 
         }
+		
 		void Start(){}
+		
 		void Update(){}
 	}
 }

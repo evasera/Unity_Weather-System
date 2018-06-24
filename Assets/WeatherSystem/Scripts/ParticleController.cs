@@ -12,11 +12,7 @@ public class ParticleController : MonoBehaviour {
     public int particleCount_3;
     public int particleCount_4;
     public int particleCount_5;
-    public int particleCount_6;
-    public int particleCount_7;
-    public int particleCount_8;
-    public int particleCount_9;
-    public int particleCount_10;
+
     
     public void SetIntensity(int intensity) {
         var em = particeSystem.emission;
@@ -39,21 +35,6 @@ public class ParticleController : MonoBehaviour {
                 break;
             case 5:
                 em.rateOverTime = particleCount_5;
-                break;
-            case 6:
-                em.rateOverTime = particleCount_6;
-                break;
-            case 7:
-                em.rateOverTime = particleCount_7;
-                break;
-            case 8:
-                em.rateOverTime = particleCount_8;
-                break;
-            case 9:
-                em.rateOverTime = particleCount_9;
-                break;
-            case 10:
-                em.rateOverTime = particleCount_10;
                 break;
             //default:
             //    Debug.LogError("PARTICLECONTROLLER " + this.name + ": received a incorrect intensity value (" +  intensity + ")");

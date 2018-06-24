@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2017
+# Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evo", "Evo.csproj", "{EE673812-DD6E-D30F-C697-22F1E69A5ACE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewAssembly", "NewAssembly.csproj", "{04EDFBF4-E3CC-2033-3FF6-D189CDD296F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evo.Plugins", "Evo.Plugins.csproj", "{DB470477-254D-948A-16F5-468183D1B098}"
 EndProject
@@ -19,6 +21,10 @@ Global
 		{EE673812-DD6E-D30F-C697-22F1E69A5ACE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE673812-DD6E-D30F-C697-22F1E69A5ACE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE673812-DD6E-D30F-C697-22F1E69A5ACE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04EDFBF4-E3CC-2033-3FF6-D189CDD296F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04EDFBF4-E3CC-2033-3FF6-D189CDD296F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04EDFBF4-E3CC-2033-3FF6-D189CDD296F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04EDFBF4-E3CC-2033-3FF6-D189CDD296F6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DB470477-254D-948A-16F5-468183D1B098}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DB470477-254D-948A-16F5-468183D1B098}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB470477-254D-948A-16F5-468183D1B098}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -23,6 +23,9 @@ namespace weatherSystem{
 		}
 		#endregion Constructors
 		//getters and Setters
+        public int GetHours() { return hours; }
+        public int GetMinutes() { return minutes; }
+        public int GetSeconds() { return seconds; }
 		
 		//other operations
 		public int ToSeconds(){

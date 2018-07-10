@@ -135,23 +135,23 @@ namespace weatherSystem {
                     for (int s = 0; s < numSeasons; s++) {
                         string[] values = lines[i].Split(',');
                         int index = getSeasonIndex(values[0].Trim(), seasons);
-                        if (debug) {
-                            Debug.Log("Reading line " + i + ": \n" +
-                                lines[i]);
-                            Debug.Log("Season name: " + values[0].Trim() + "\t index: " + index);
-                            Debug.Break();
-                        }
+                        //if (debug) {
+                        //    Debug.Log("Reading line " + i + ": \n" +
+                        //        lines[i]);
+                        //    Debug.Log("Season name: " + values[0].Trim() + "\t index: " + index);
+                        //    Debug.Break();
+                        //}
 
                         for (int j = 0; j <= maxValue; j++) {
-                            if (debug) {
-                                Debug.Log("cloud probability for season " + values[0].Trim() + " and intensity " + j + " :" + (values[j+1].Trim()));
-                                Debug.Break();
-                            }
+                            //if (debug) {
+                            //    Debug.Log("cloud probability for season " + values[0].Trim() + " and intensity " + j + " :" + (values[j+1].Trim()));
+                            //    Debug.Break();
+                            //}
                             cloudProbabilities[j, index] = float.Parse(values[j+1].Trim());
-                            if (debug) {
-                                Debug.Log("converted value: " + cloudProbabilities[j, index]);
-                                Debug.Break(); 
-                            }
+                            //if (debug) {
+                            //    Debug.Log("converted value: " + cloudProbabilities[j, index]);
+                            //    Debug.Break(); 
+                            //}
                         }
                         i++;
                     }
@@ -168,23 +168,23 @@ namespace weatherSystem {
                     for (int s = 0; s < numSeasons; s++) {
                         string[] values = lines[i].Split(',');
                         int index = getSeasonIndex(values[0].Trim(), seasons);
-                        if (debug) {
-                            Debug.Log("Reading line " + i + ": \n" +
-                                lines[i]);
-                            Debug.Log("Season name: " + values[0].Trim() + "\t index: " + index);
-                            Debug.Break();
-                        }
+                        //if (debug) {
+                        //    Debug.Log("Reading line " + i + ": \n" +
+                        //        lines[i]);
+                        //    Debug.Log("Season name: " + values[0].Trim() + "\t index: " + index);
+                        //    Debug.Break();
+                        //}
 
                         for (int j = 0; j <= maxValue; j++) {
-                            if (debug) {
-                                Debug.Log("rain probability for season " + values[0].Trim() + " and intensity " + j + " :" + (values[j + 1].Trim()));
-                                Debug.Break();
-                            }
+                            //if (debug) {
+                            //    Debug.Log("rain probability for season " + values[0].Trim() + " and intensity " + j + " :" + (values[j + 1].Trim()));
+                            //    Debug.Break();
+                            //}
                             rainProbabilities[j, index] = float.Parse(values[j + 1].Trim());
-                            if (debug) {
-                                Debug.Log("converted value: " + cloudProbabilities[j, index]);
-                                Debug.Break();
-                            }
+                            //if (debug) {
+                            //    Debug.Log("converted value: " + cloudProbabilities[j, index]);
+                            //    Debug.Break();
+                            //}
                         }
                         i++;
                     }
@@ -201,23 +201,23 @@ namespace weatherSystem {
                     for (int s = 0; s < numSeasons; s++) {
                         string[] values = lines[i].Split(',');
                         int index = getSeasonIndex(values[0].Trim(), seasons);
-                        if (debug) {
-                            Debug.Log("Reading line " + i + ": \n" +
-                                lines[i]);
-                            Debug.Log("Season name: " + values[0].Trim() + "\t index: " + index);
-                            Debug.Break();
-                        }
+                        //if (debug) {
+                        //    Debug.Log("Reading line " + i + ": \n" +
+                        //        lines[i]);
+                        //    Debug.Log("Season name: " + values[0].Trim() + "\t index: " + index);
+                        //    Debug.Break();
+                        //}
 
                         for (int j = 0; j <= maxValue; j++) {
-                            if (debug) {
-                                Debug.Log("snow probability for season " + values[0].Trim() + " and intensity " + j + " :" + (values[j + 1].Trim()));
-                                Debug.Break();
-                            }
+                            //if (debug) {
+                            //    Debug.Log("snow probability for season " + values[0].Trim() + " and intensity " + j + " :" + (values[j + 1].Trim()));
+                            //    Debug.Break();
+                            //}
                             snowProbabilities[j, index] = float.Parse(values[j + 1].Trim());
-                            if (debug) {
-                                Debug.Log("converted value: " + snowProbabilities[j, index]);
-                                Debug.Break();
-                            }
+                            //if (debug) {
+                            //    Debug.Log("converted value: " + snowProbabilities[j, index]);
+                            //    Debug.Break();
+                            //}
                         }
                         i++;
                     }
@@ -234,23 +234,23 @@ namespace weatherSystem {
                     for (int s = 0; s < numSeasons; s++) {
                         string[] values = lines[i].Split(',');
                         int index = getSeasonIndex(values[0].Trim(), seasons);
-                        if (debug) {
-                            Debug.Log("Reading line " + i + ": \n" +
-                                lines[i]);
-                            Debug.Log("Season name: " + values[0].Trim() + "\t index: " + index);
-                            Debug.Break();
-                        }
+                        //if (debug) {
+                        //    Debug.Log("Reading line " + i + ": \n" +
+                        //        lines[i]);
+                        //    Debug.Log("Season name: " + values[0].Trim() + "\t index: " + index);
+                        //    Debug.Break();
+                        //}
 
                         for (int j = 0; j <= maxValue; j++) {
-                            if (debug) {
-                                Debug.Log("lightning probability for season " + values[0].Trim() + " and intensity " + j + " :" + (values[j + 1].Trim()));
-                                Debug.Break();
-                            }
+                            //if (debug) {
+                            //    Debug.Log("lightning probability for season " + values[0].Trim() + " and intensity " + j + " :" + (values[j + 1].Trim()));
+                            //    Debug.Break();
+                            //}
                             lightningProbabilities[j, index] = float.Parse(values[j + 1].Trim());
-                            if (debug) {
-                                Debug.Log("converted value: " + lightningProbabilities[j, index]);
-                                Debug.Break();
-                            }
+                            //if (debug) {
+                            //    Debug.Log("converted value: " + lightningProbabilities[j, index]);
+                            //    Debug.Break();
+                            //}
                         }
                         i++;
                     }
@@ -347,8 +347,5 @@ namespace weatherSystem {
 
         }
 		
-		void Start(){}
-		
-		void Update(){}
 	}
 }

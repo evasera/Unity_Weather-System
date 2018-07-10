@@ -1,4 +1,4 @@
-WindowsStandalone
+WebGL
 SceneListBegin?
 Assets/Demo/Showcase.unity
 SceneListEnd?
@@ -219,7 +219,7 @@ f4b175ffc1eeca85d2783436b4c764a7 Assembly-CSharp-firstpass.dll:UnityStandardAsse
 d9f0ddaebb3556eec724bac28f48ecbd NewAssembly.dll:weatherSystem.Month
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp-firstpass.dll:UnityStandardAssets.Utility.FPSCounter
 3d8f5ea8f58578cde88ea02e3dda211e NewAssembly.dll:weatherSystem.SunMoonRotation
-f17a1542a39ae37f7a56d1921e8603b8 NewAssembly.dll:weatherSystem.CentralClock
+bc7723f8c942800a3bdbf6b8c9ced10a NewAssembly.dll:weatherSystem.CentralClock
 9d6b770cabe4fa062065e34e971d4b92 NewAssembly.dll:weatherSystem.CloudController
 a412f64ff4e4667098f82b7fa0bf56e2 Assembly-CSharp-firstpass.dll:UnityStandardAssets._2D.PlatformerCharacter2D
 d26bb53dcfce74b42603a21556285e21 NewAssembly.dll:weatherSystem.MoonPhases

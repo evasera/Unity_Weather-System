@@ -21,8 +21,20 @@ namespace weatherSystem{
 		#endregion Private Atributes
 		
 		#region Get and Set functions
-		public Date GetStartDate(){return startDate;}
-		public Date GetEndDate(){return endDate;}
+		public Date GetStartDate(){
+            if(startDate == null){
+                Debug.LogError("SEASON " + this.name + ": Start date is null");
+                Debug.Break();
+            }
+            return startDate;
+        }
+		public Date GetEndDate(){
+            if (startDate == null) {
+                Debug.LogError("SEASON " + this.name + ": End date is null");
+                Debug.Break();
+            }
+            return endDate;
+        }
 		public Season GetNextSeason(){return next_season;}
 		public int GetIndex(){return index;}
 		#endregion Get and Set functions
@@ -147,10 +159,6 @@ namespace weatherSystem{
         void Update()
         {
 
-        }
-
-        internal Season Clone() {
-            throw new NotImplementedException();
         }
     }
 }

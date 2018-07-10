@@ -6,8 +6,8 @@ using UnityEngine;
 namespace weatherSystem {
     public class WeatherController : MonoBehaviour {
         #region constants
-        public const float E  = 2.71828f;
-        public const float PI = 1.61803399f;
+        public const float E  = 2.7182818284590452353f;
+        public const float PI = 3.14159265359f;
         #endregion constants
 
 
@@ -24,14 +24,14 @@ namespace weatherSystem {
         public CloudController cloudController;
         public ParticleController rainController;
         public ParticleController snowController;
-        //public ParticleSystem lightningSystem;
+        public CloudController lightningController;
 		#endregion public Atributes
 		
         #region private Atributes
         private CentralClock clock;
         private Time lastUpdate;
+        private Season currentSeason;
 		private int currentSeasonIndex;
-
 		private WeatherState currentState;
         private int maxIntensityValue;
 
@@ -44,10 +44,87 @@ namespace weatherSystem {
 
         #endregion private Atributes 
 
+        private Season[] GetSeasons() {
+            GameObject[] s = GameObject.FindGameObjectsWithTag("Season");
+            Season[] result = new Season[s.Length];
+            for (int i = 0; i < s.Length; i++) {
+                Season season = s[i].GetComponent<Season>();
+                if (season == null) {
+                    Debug.LogError("GameObject " + s[i].name + " is tagged as Season, but it does not have a component with the Season script");
+                    Debug.Break();
+                } else {
+                    result[season.GetIndex()] = season;
+                }
+            }
+            return result;
+        }
+
+        private Season GetPreviousSeason(Season s) {
+            Season result = currentSeason;
+            Season[] seasons = GetSeasons();
+            for (int i = 0; i < seasons.Length; i++) {
+                if (seasons[i].GetNextSeason().Equals(s)) {
+                    return seasons[i];
+                }
+            }
+            return result;
+        }
+        void GetInitialSeason(Date currentDate) {
+            GameObject[] s = GameObject.FindGameObjectsWithTag("Season");
+            bool[] indexesUsed = new bool[s.Length];
+            if (s.Length == 0) {
+                Debug.LogError("CENTRALCLOCK: No object with tag 'Season' found");
+            }
+            for (int i = 0; i < s.Length; i++) {
+                Season aux = s[i].GetComponent<Season>();
+                int index = aux.GetIndex();
+                if (index >= s.Length) {
+                    Debug.LogError("CENTRALCLOCK: Season " + s + "has an index number to high. \n Please Remember that season indexes need to start in 0 and be consecutive");
+                } else {
+                    if (indexesUsed[i]) {
+                        Debug.LogError("CENTRALCLOCK: Season index " + i + " is duplicated");
+                    } else {
+                        indexesUsed[i] = true;
+                    }
+                }
+                if (aux == null) {
+                    Debug.LogError("CENTRALCLOCK: GameObject " + s[i].name + "has 'Season' tag but no Season script");
+                }
+                if (aux.GetEndDate().CompareTo(aux.GetStartDate()) < 0) {
+                    if (currentDate.CompareTo(aux.GetStartDate()) >= 0 || currentDate.CompareTo(aux.GetEndDate()) < 0) {
+                        currentSeason = aux;
+                        break;
+                    }
+                } else if (currentDate.CompareTo(aux.GetStartDate()) >= 0 && currentDate.CompareTo(aux.GetEndDate()) < 0) {
+                    currentSeason = aux;
+                    break;
+                }
+            }
+            if (currentSeason == null) {
+                Debug.LogError("CENTRALCLOCK: Initial season could not be found");
+            }
+        }
+
+        public string matrixToString( float[,] matrix) {
+            string str = "";
+            for (int i = 0; i <= maxIntensityValue; i++) {
+                for (int j = 0; j <= maxIntensityValue; j++) {
+                    str += matrix[i, j] + "\t";
+                }
+                str += "\n";
+            }
+            return str;
+        }
+
         private float NormalDistributionValue(int x, float mean, float stdDev) {
-            float result;
-            result = (1/(stdDev*Mathf.Sqrt(2*PI))) * Mathf.Pow(E, (float) -(1.0f/2.0)*Mathf.Pow(((x-mean)/stdDev), 2.0f));
             
+            float result;
+            //result = (1/(stdDev*Mathf.Sqrt(2*PI))) * Mathf.Pow(E, (float) -(1.0f/2.0)*Mathf.Pow(((x-mean)/stdDev), 2.0f));
+            result = (1 / (stdDev*Mathf.Sqrt(2*PI))) * Mathf.Pow( E,  (- Mathf.Pow((x-mean), 2.0f))  /  (2* Mathf.Pow(stdDev, 2)) ) ;
+            //if (debug) {
+            //    Debug.Log("Calculating normal distribution value for: x: " + x + " mean: " + mean + " stdDev: " + stdDev + "\n Result: " + result);
+            //    Debug.Break();
+            //}
             return result;
         }
         
@@ -61,18 +138,18 @@ namespace weatherSystem {
             float max = 0.0f;
             int clouds = 0;
             for(int i=0; i<maxIntensityValue; i++) {
-                if (debug) {
-                    Debug.Log("WEATHERCONTROLLER: biome's probability of cloud intensity " + i + ": " + biome.GetCloudProbability(i, currentSeasonIndex));
-                    Debug.Break();
-                }
+                //if (debug) {
+                //    Debug.Log("WEATHERCONTROLLER: biome's probability of cloud intensity " + i + ": " + biome.GetCloudProbability(i, currentSeasonIndex));
+                //    Debug.Break();
+                //}
                 if (biome.GetCloudProbability(i, currentSeasonIndex) > max) {
                     max = biome.GetCloudProbability(i, currentSeasonIndex);
                     clouds = i;
-                    if (debug) {
-                        Debug.Log("WEATHERCONTROLLER: a provisional intensity has been found. \n" +
-                            "max probability value: " + max + "\t intensity value: " + i);
-                        Debug.Break();
-                    }
+                    //if (debug) {
+                    //    Debug.Log("WEATHERCONTROLLER: a provisional intensity has been found. \n" +
+                    //        "max probability value: " + max + "\t intensity value: " + i);
+                    //    Debug.Break();
+                    //}
                 }
             }
             if (debug) {
@@ -175,16 +252,21 @@ namespace weatherSystem {
             //CLOUD VALUE:
             float random = UnityEngine.Random.value;
             for(int i = 0; i<= maxIntensityValue; i++) {
-                if(random<cloudAcumulativeValues[i, currentState.GetClouds()]) {
+                if(random<cloudAcumulativeValues[currentState.GetClouds(), i]) {
                     clouds = i;
                     break;
                 }
+            }
+            if (debug) {
+                Debug.Log("CALCULATING CLOUD VALUE: ");
+                Debug.Log("Acumulative values: " + matrixToString(cloudAcumulativeValues));
+                Debug.Log("Random value: " + random + ", \t Selected value:" + clouds);
             }
 
             //RAIN VALUE
             random = UnityEngine.Random.value;
             for (int i = 0; i <= maxIntensityValue; i++) {
-                if (random < rainAcumulativeValues[i, currentState.GetRain()]) {
+                if (random < rainAcumulativeValues[currentState.GetClouds(), i]) {
                     rain = i;
                     break;
                 }
@@ -193,7 +275,7 @@ namespace weatherSystem {
             //SNOW VALUE
             random = UnityEngine.Random.value;
             for (int i = 0; i <= maxIntensityValue; i++) {
-                if (random < snowAcumulativeValues[i, currentState.GetSnow()]) {
+                if (random < snowAcumulativeValues[currentState.GetClouds(), i]) {
                     snow = i;
                     break;
                 }
@@ -202,7 +284,7 @@ namespace weatherSystem {
             //LIGHTNING VALUE
             random = UnityEngine.Random.value;
             for (int i = 0; i <= maxIntensityValue; i++) {
-                if (random < lightningAcumulativeValues[i, currentState.GetLightning()]) {
+                if (random < lightningAcumulativeValues[currentState.GetClouds(), i]) {
                     lightning = i;
                     break;
                 }
@@ -259,19 +341,50 @@ namespace weatherSystem {
                         normalDistributionValues[i, j] = NormalDistributionValue(i, j, standard_deviation);
                     }
                 }
+                //if (debug) {
+                //    string str = "";
+                //    for (int i = 0; i <= maxIntensityValue; i++) {
+                //        for (int j = 0; j <= maxIntensityValue; j++) {
+                //            str += normalDistributionValues[i, j] + "\t";
+                //        }
+                //        str += "\n";
+                //    }
+                //    Debug.Log("Normal distrubution values calculated: \n" + str);
+                //    Debug.Break();
+                //}
+
             }
 
             //CLOUDS  
             //get the biome probabilities
             float[] cloudPI = biome.GetCloudProbabiliyRow(season);
+            //if (debug) {
+            //    string str = "";
+            //    for (int i = 0; i <= maxIntensityValue; i++) {
+            //        str += cloudPI[i] + "\t";
+            //    }
+            //    Debug.Log("Cloud P(i): " + str);
+            //    Debug.Break();
+            //}
 
             //probability if intensity i given a prevous state of j - P(i, j)
             float[,] cloudPIJ = new float[maxIntensityValue + 1, maxIntensityValue + 1];
             for (int i = 0; i<=maxIntensityValue; i++) {
                 for(int j = 0; j<= maxIntensityValue; j++) {
-                    cloudPIJ[i, j] = normalDistributionValues[i, j] * cloudPI[i];
+                    cloudPIJ[j, i] = normalDistributionValues[j, i] * cloudPI[i];
                 }
             }
+
+            //if (debug) {
+            //    string str = "";
+            //    for(int i = 0; i<= maxIntensityValue; i++) {
+            //        for(int j = 0; j<= maxIntensityValue; j++) {
+            //            str += cloudPIJ[i, j] + "\t";
+            //        }
+            //    }
+            //    Debug.Log("Calculated CloudPIJ: \n" + str);
+            //    Debug.Break();
+            //}
 
             //normalizing each row on Probability(i,j) matrix
             float[,] normCloudPIJ = new float[maxIntensityValue + 1, maxIntensityValue + 1];
@@ -279,6 +392,7 @@ namespace weatherSystem {
                 float rowSum = 0;
                 for(int j = 0; j<= maxIntensityValue; j++) {
                     rowSum += cloudPIJ[i, j];
+
                 }
 
                 for (int j = 0; j <= maxIntensityValue; j++) {
@@ -286,30 +400,57 @@ namespace weatherSystem {
                 }
             }
 
+            //if (debug) {
+            //    string str = "";
+            //    for (int i = 0; i <= maxIntensityValue; i++) {
+            //        for (int j = 0; j <= maxIntensityValue; j++) {
+            //            str += normCloudPIJ[i, j] + "\t";
+            //        }
+            //    }
+            //    Debug.Log("Calculated normCloudPIJ: \n" + str);
+            //    Debug.Break();
+            //}
+
             //calculate the acumulative P(i,j) matrix
             if (cloudAcumulativeValues == null)
                 cloudAcumulativeValues = new float[maxIntensityValue + 1, maxIntensityValue + 1];
             for(int i = 0; i<= maxIntensityValue; i++) {
                 for(int j = 0; j <= maxIntensityValue; j++) {
-                    if (i == 0) {
+                    if (j == 0) {
                         cloudAcumulativeValues[i, j] = normCloudPIJ[i, j];
                     } else {
-                        cloudAcumulativeValues[i, j] = normCloudPIJ[i, j] + cloudAcumulativeValues[i - 1, j];
+                        cloudAcumulativeValues[i, j] = normCloudPIJ[i, j] + cloudAcumulativeValues[i, j-1];
                     }
                 }
             }
+            //if (debug) {
+            //    Debug.Log("CLOUD ACCUMULATIVE VALUES: : \n" + matrixToString(cloudAcumulativeValues));
+            //    Debug.Break();
+            //}
 
             //RAIN
             //get the biome probabilities
             float[] rainPI = biome.GetRainProbabiliyRow(season);
+            //if (debug) {
+            //    string str = "";
+            //    for (int i = 0; i <= maxIntensityValue; i++) {
+            //        str += rainPI[i] + "\t";
+            //    }
+            //    Debug.Log("rainPI P(i): " + str);
+            //    Debug.Break();
+            //}
 
             //probability if intensity i given a prevous state of j - P(i, j)
             float[,] rainPIJ = new float[maxIntensityValue + 1, maxIntensityValue + 1];
             for (int i = 0; i <= maxIntensityValue; i++) {
                 for (int j = 0; j <= maxIntensityValue; j++) {
-                    rainPIJ[i, j] = normalDistributionValues[i, j] * rainPI[i];
+                    rainPIJ[j, i] = normalDistributionValues[j, i] * rainPI[i];
                 }
             }
+            //if (debug) {
+            //    Debug.Log("Calculated rainPIJ: \n" + matrixToString(rainPIJ));
+            //    Debug.Break();
+            //}
 
             //normalizing each row on Probability(i,j) matrix
             float[,] normRainPIJ = new float[maxIntensityValue + 1, maxIntensityValue + 1];
@@ -323,29 +464,46 @@ namespace weatherSystem {
                     normRainPIJ[i, j] = rainPIJ[i, j] / rowSum;
                 }
             }
+            //if (debug) {
+            //    Debug.Log("Calculated normRainPIJ: \n" + matrixToString(normRainPIJ));
+            //    Debug.Break();
+            //}
 
             //calculate the acumulative P(i,j) matrix
             if (rainAcumulativeValues == null)
                 rainAcumulativeValues = new float[maxIntensityValue + 1, maxIntensityValue + 1];
+
             for (int i = 0; i <= maxIntensityValue; i++) {
                 for (int j = 0; j <= maxIntensityValue; j++) {
-                    if (i == 0) {
+                    if (j == 0) {
                         rainAcumulativeValues[i, j] = normRainPIJ[i, j];
                     } else {
-                        rainAcumulativeValues[i, j] = normRainPIJ[i, j] + rainAcumulativeValues[i - 1, j];
+                        rainAcumulativeValues[i, j] = normRainPIJ[i, j] + rainAcumulativeValues[i , j-1];
                     }
                 }
             }
+            //if (debug) {
+            //    Debug.Log("RAIN ACCUMULATIVE VALUES: : \n" + matrixToString(rainAcumulativeValues));
+            //    Debug.Break();
+            //}
 
             //SNOW
             //get the biome probabilities
             float[] snowPI = biome.GetSnowProbabiliyRow(season);
+            //if (debug) {
+            //    string str = "";
+            //    for (int i = 0; i <= maxIntensityValue; i++) {
+            //        str += snowPI[i] + "\t";
+            //    }
+            //    Debug.Log("snowPI P(i): " + str);
+            //    Debug.Break();
+            //}
 
             //probability if intensity i given a prevous state of j - P(i, j)
             float[,] snowPIJ = new float[maxIntensityValue + 1, maxIntensityValue + 1];
             for (int i = 0; i <= maxIntensityValue; i++) {
                 for (int j = 0; j <= maxIntensityValue; j++) {
-                    snowPIJ[i, j] = normalDistributionValues[i, j] * snowPI[i];
+                    snowPIJ[j, i] = normalDistributionValues[j, i] * snowPI[i];
                 }
             }
 
@@ -367,23 +525,35 @@ namespace weatherSystem {
                 snowAcumulativeValues = new float[maxIntensityValue + 1, maxIntensityValue + 1];
             for (int i = 0; i <= maxIntensityValue; i++) {
                 for (int j = 0; j <= maxIntensityValue; j++) {
-                    if (i == 0) {
+                    if (j == 0) {
                         snowAcumulativeValues[i, j] = normSnowPIJ[i, j];
                     } else {
-                        snowAcumulativeValues[i, j] = normSnowPIJ[i, j] + snowAcumulativeValues[i - 1, j];
+                        snowAcumulativeValues[i, j] = normSnowPIJ[i, j] + snowAcumulativeValues[i , j-1];
                     }
                 }
             }
+            //if (debug) {
+            //    Debug.Log("SNOW ACCUMULATIVE VALUES: : \n" + matrixToString(snowAcumulativeValues));
+            //    Debug.Break();
+            //}
 
             //LIGHTNING
             //get the biome probabilities
             float[] lightningPI = biome.GetLightningProbabiliyRow(season);
+            //if (debug) {
+            //    string str = "";
+            //    for (int i = 0; i <= maxIntensityValue; i++) {
+            //        str += lightningPI[i] + "\t";
+            //    }
+            //    Debug.Log("lightningPI: " + str);
+            //    Debug.Break();
+            //}
 
             //probability if intensity i given a prevous state of j - P(i, j)
             float[,] lightningPIJ = new float[maxIntensityValue + 1, maxIntensityValue + 1];
             for (int i = 0; i <= maxIntensityValue; i++) {
                 for (int j = 0; j <= maxIntensityValue; j++) {
-                    lightningPIJ[i, j] = normalDistributionValues[i, j] * lightningPI[i];
+                    lightningPIJ[j, i] = normalDistributionValues[j, i] * lightningPI[i];
                 }
             }
 
@@ -405,13 +575,17 @@ namespace weatherSystem {
                 lightningAcumulativeValues = new float[maxIntensityValue + 1, maxIntensityValue + 1];
             for (int i = 0; i <= maxIntensityValue; i++) {
                 for (int j = 0; j <= maxIntensityValue; j++) {
-                    if (i == 0) {
+                    if (j == 0) {
                         lightningAcumulativeValues[i, j] = normLightningPIJ[i, j];
                     } else {
-                        lightningAcumulativeValues[i, j] = normLightningPIJ[i, j] + lightningAcumulativeValues[i - 1, j];
+                        lightningAcumulativeValues[i, j] = normLightningPIJ[i, j] + lightningAcumulativeValues[i, j-1];
                     }
                 }
             }
+            //if (debug) {
+            //    Debug.Log("LIGHTNINF ACCUMULATIVE VALUES: : \n" + matrixToString(lightningAcumulativeValues));
+            //    Debug.Break();
+            //}
         }
 
         public override string ToString() {
@@ -432,17 +606,19 @@ namespace weatherSystem {
                 Debug.Break();
             }
 
-            maxIntensityValue = biome.GetMaxIntensityValue();
         }
 		
 		void Start(){
+
+            maxIntensityValue = biome.GetMaxIntensityValue();
             //obtener estado inicial como el valor mas probable de cada estado a menos que hayan inconsistencias ( mas lluvia que nubes, lluvia y nieve a la vez....)
-            currentSeasonIndex = clock.GetSeason().GetIndex();
+            GetInitialSeason(clock.getCurrentDate());
             currentState = GetInitialState();
+            visualizeState();
             lastUpdate = clock.getCurrentTime().Clone();
 
             //calcular matrices acumulativas 
-            updateAcumulativeValues(currentSeasonIndex);
+            updateAcumulativeValues(currentSeason.GetIndex());
 		}
 		
 		void Update(){
@@ -468,7 +644,7 @@ namespace weatherSystem {
             cloudController.SetIntensity(currentState.GetClouds());
             rainController.SetIntensity(currentState.GetRain());
             snowController.SetIntensity(currentState.GetSnow());
-            //TODO: representacion rayos
+            lightningController.SetIntensity(currentState.GetLightning());
         }
     }
 }

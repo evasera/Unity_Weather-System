@@ -23,7 +23,8 @@ namespace weatherSystem{
         }
         public Date DateWithDays(int days){
             Date result =this.Clone();
-            result.AddDay(days);
+            if(days>0) result.AddDay(days);
+			else result.SubstractDay(-days);
             return result;
         }
 		public Date Clone(){
@@ -103,21 +104,23 @@ namespace weatherSystem{
 			}
             
         }  
+		
         public void AddDay(int d){
-            if ((day + d)<=month.Length) {
-                this.day += d;
-            }
-            else{
-                int leftover = d - (month.Length - day) -1;
-                AddMonth(1);
-                day = 1;
-                while (leftover +1 > month.Length){
-                    leftover -= month.Length;
-                    AddMonth(1);
-                }
-                day += leftover;
-            } 
+				if ((day + d)<=month.Length) {
+					this.day += d;
+				}
+				else{
+					int leftover = d - (month.Length - day) -1;
+					AddMonth(1);
+					day = 1;
+					while (leftover +1 > month.Length){
+						leftover -= month.Length;
+						AddMonth(1);
+					}
+					day += leftover;
+				}
         }
+		
 		public void SubstractDay(int d){
 			if(d<0) AddDay(-d);
 			else{

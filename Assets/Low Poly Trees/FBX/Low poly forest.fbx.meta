@@ -1,9 +1,9 @@
 fileFormatVersion: 2
-guid: 2ad459b491a70ba4b9febbc47a27d881
+guid: bff32155799cbc644a5eb7f2d7973fb9
 timeCreated: 1468843731
 licenseType: Store
 ModelImporter:
-  serializedVersion: 19
+  serializedVersion: 22
   fileIDToRecycleName:
     100000: Cube.002
     100002: Cube.003
@@ -487,10 +487,72 @@ ModelImporter:
     4300186: Tree1.001
     4300188: Tree7.005
     4300190: Cylinder.011
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: AutumnLeaves.000
+    second: {fileID: 2100000, guid: 6a657ba9a4205444fbd7a23200d33fd2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: AutumnLeaves2.000
+    second: {fileID: 2100000, guid: e6b02ec8f33f2114d8867ec27d7001b7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: AutumnLeavest1.001
+    second: {fileID: 2100000, guid: aff46c72e44a2d54cab49497a0e80bd1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Bark.000
+    second: {fileID: 2100000, guid: 8db00549020512247aa79afb7582477f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Bark2.000
+    second: {fileID: 2100000, guid: 017c0146404043a4fa0da76d894b74c7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Bark3.000
+    second: {fileID: 2100000, guid: a94a222f1a8ccc245a25996f40c2b9d0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Leaves.000
+    second: {fileID: 2100000, guid: 8cd58462635b76349b51297249b55ad4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Leaves2.000
+    second: {fileID: 2100000, guid: 10851bd91c072cb4ab4a9ac0a8809ade, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Snow.000
+    second: {fileID: 2100000, guid: e9ab638ece0243747afec7d8b403e032, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Stone.000
+    second: {fileID: 2100000, guid: e56e017c0cc40b445821793908d45ee4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Stone2.000
+    second: {fileID: 2100000, guid: fbd01a56be0853e4aa7ee7b8818c2094, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Stone3.000
+    second: {fileID: 2100000, guid: cec1d326b67ad0942b0691d391ec3c4b, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
     materialSearch: 1
+    materialLocation: 0
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
@@ -503,12 +565,14 @@ ModelImporter:
     animationImportWarnings: 
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
     animationCompression: 1
     animationRotationError: 0.5
     animationPositionError: 0.5
     animationScaleError: 0.5
     animationWrapMode: 0
     extraExposedTransformPaths: []
+    extraUserProperties: []
     clipAnimations: []
     isReadable: 1
   meshes:
@@ -516,13 +580,18 @@ ModelImporter:
     globalScale: 1
     meshCompression: 0
     addColliders: 0
+    importVisibility: 0
     importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
     swapUVChannels: 0
     generateSecondaryUV: 1
     useFileUnits: 1
     optimizeMeshForGPU: 0
     keepQuads: 0
     weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 1
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
@@ -532,6 +601,7 @@ ModelImporter:
     normalSmoothAngle: 60
     normalImportMode: 0
     tangentImportMode: 3
+    normalCalculationMode: 0
   importAnimation: 1
   copyAvatar: 0
   humanDescription:
